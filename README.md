@@ -48,26 +48,35 @@ Build a specialized AI assistant that:
 
 ## Phase Overview
 
-### Phase 1: Discord-Based Knowledge Engine ✍️ **[IN PROGRESS]**
+### Phase 1: Discord-Based Knowledge Engine ✅ **[COMPLETE]**
 
 **Objective**: Build a text-based Q&A system that answers questions inside Discord, grounded in books.
 
 **What's included**:
-- Book parsing (PDF, EPUB, TXT)
-- Semantic text chunking with overlap
-- Vector embeddings and retrieval (Chroma + sentence-transformers)
-- LLM-based answer generation (Ollama + Llama 2/3)
-- Discord bot interface with slash commands
-- FastAPI support endpoints for health and admin workflows
+- Book parsing (PDF, EPUB, TXT) ✓
+- Semantic text chunking with overlap ✓
+- Vector embeddings and retrieval (Chroma + sentence-transformers) ✓
+- LLM-based answer generation (Ollama + Llama 2/3) ✓
+- Discord bot interface with slash commands ✓
+- FastAPI REST API with full documentation ✓
 
 **Tech Stack**: Python, discord.py, FastAPI, LangChain, Chroma, Ollama, sentence-transformers
 
-**Timeline**: 8–12 days of focused development
+**Completed Components**:
+- ✓ Phase 1a: Foundations (config, environment setup)
+- ✓ Phase 1b: Ingestion (parsers, cleaner, chunker)
+- ✓ Phase 1c: Indexing (embeddings, Chroma vector store)
+- ✓ Phase 1d: Retrieval & Generation (semantic search, LLM integration)
+- ✓ Phase 1e: API & Discord Bot (FastAPI routes, slash commands)
+- ⏳ Phase 1f: Testing & Deployment (CI/CD, scaling)
 
-**Status**:
-- ✓ Architecture designed
-- ✓ Implementation guide written
-- ⏳ Code modules to be implemented (Phase 1a–1f)
+**How to Use**:
+1. `python scripts/ingest_book.py data/books/my_book.pdf` — Add books to index
+2. `python scripts/run_api.py` — Start HTTP API (http://localhost:8000/docs)
+3. `python scripts/run_discord_bot.py` — Start Discord bot
+4. Ask questions via `/ask` in Discord or POST to `/api/ask`
+
+See [GETTING_STARTED.md](GETTING_STARTED.md) for detailed instructions.
 
 ### Phase 2: Grounding and Quality Control (Planned)
 
@@ -87,57 +96,139 @@ Production deployment, scaling, A/B testing infrastructure.
 
 ---
 
-## Quick Start (Phase 1)
+## Quick Start (Phase 1) ✅ Complete System
 
 ### Prerequisites
 
 - Python 3.10+
-- ~10GB free disk space
-- Ollama (for local LLM)
+- ~2GB disk (embeddings model)
+- ~8GB RAM (for Ollama)
+- Ollama (https://ollama.ai) — for local LLM
 - Git
 
-### Setup (5 minutes)
+### Installation (10 minutes)
 
 ```bash
 # 1. Clone and navigate
+git clone https://github.com/SKATHEKING/ManlyPHallAI.git
 cd ManlyPHallAI
 
 # 2. Create virtual environment
 python3 -m venv .venv
 source .venv/bin/activate  # macOS/Linux
+# or: .venv\Scripts\activate  # Windows
 
-# 2. Install dependencies
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 3. Download models (one-time, ~5 min)
+# 4. Download embeddings model (one-time, ~2 min)
 python scripts/download_embeddings_model.py
+```
 
-# 4. Start Ollama (separate terminal)
+### Running the System
+
+**Terminal 1: Ollama Service**
+```bash
 ollama serve
-ollama pull llama2:7b
+# Then in another tab: ollama pull llama2:7b
+```
 
-# 5. Configure Discord bot token in .env
-cp .env.example .env
+**Terminal 2: Ingest Books**
+```bash
+# Single book
+python scripts/ingest_book.py data/books/my_book.pdf
 
-# 6. Run the Discord bot
+# Multiple books
+python scripts/ingest_book.py data/books/book1.pdf
+python scripts/ingest_book.py data/books/book2.epub
+python scripts/ingest_book.py data/books/book3.txt
+```
+
+**Terminal 3 (Option A): Start HTTP API**
+```bash
+python scripts/run_api.py
+# Visit: http://localhost:8000/docs for interactive documentation
+```
+
+**Terminal 3 (Option B): Start Discord Bot**
+```bash
+export DISCORD_TOKEN="your-bot-token-here"
 python scripts/run_discord_bot.py
 ```
 
-### Ingest a Book
+### Test Your Setup
 
 ```bash
-python scripts/ingest_book.py data/books/my_book.pdf --title "My Book" --author "Author Name"
+# Test ingestion
+python scripts/test_ingestion.py
+
+# Test embedding + indexing
+python scripts/test_indexing.py
+
+# Test retrieval + generation
+python scripts/test_retrieval_generation.py
 ```
 
-### Ask a Question
+### Use the System
 
+**Via HTTP API**:
 ```bash
-curl -X POST http://localhost:8000/ask \
+curl -X POST "http://localhost:8000/api/ask" \
   -H "Content-Type: application/json" \
-  -d '{"question": "What is Freemasonry?"}'
+  -d '{"question": "What is enlightenment?", "k": 5}'
+
+# Response:
+# {
+#   "answer": "Enlightenment is...",
+#   "citations": ["book.pdf, page 42", ...],
+#   "confidence": 0.85,
+#   "num_sources": 3
+# }
 ```
 
-**Full details**: See [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)
+**Via Discord Bot**:
+- `/ask What is the Hermetic principle?`
+- `/search cosmic principles`
+- `/status` — Check bot status
+- `/help` — Show available commands
+
+---
+
+## Architecture Overview
+
+The complete RAG pipeline:
+
+```
+Book Upload
+    ↓
+Parse & Clean (PDF/EPUB/TXT → text)
+    ↓
+Chunk Text (256 tokens, 50% overlap)
+    ↓
+Generate Embeddings (sentence-transformers, 384-dim)
+    ↓
+Store in Vector DB (Chroma)
+    ↓
+User Question
+    ↓
+Embed Query (same model)
+    ↓
+Semantic Search (top-k similar chunks)
+    ↓
+Build Prompt (context + question)
+    ↓
+Generate Answer (Ollama LLM)
+    ↓
+Return with Citations
+    ↓
+Send via API / Discord
+```
+
+**See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed system design.**
+
+---
+
+**Full Details**: See [GETTING_STARTED.md](GETTING_STARTED.md) for troubleshooting and configuration.
 
 ---
 
