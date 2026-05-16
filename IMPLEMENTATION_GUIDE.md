@@ -177,7 +177,7 @@ DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 **Verification**:
 ```bash
-python -c "from backend.config import *; print(f'Data dir: {DATA_DIR}'); print(f'Embedding model: {EMBEDDING_MODEL}')"
+python3 -c "from backend.config import *; print(f'Data dir: {DATA_DIR}'); print(f'Embedding model: {EMBEDDING_MODEL}')"
 ```
 
 Expected output:
@@ -301,7 +301,7 @@ print(f"✓ Model dimension: {model.get_sentence_embedding_dimension()}")
 
 **Run it**:
 ```bash
-python scripts/download_embeddings_model.py
+python3 scripts/download_embeddings_model.py
 ```
 
 **Expected Time**: 2–3 minutes (first download); subsequent runs cache the model locally.

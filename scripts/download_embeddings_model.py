@@ -32,4 +32,4 @@ print(f"Cache directory: {MODELS_DIR}")
 model = SentenceTransformer(EMBEDDING_MODEL)
 
 print("✓ Model downloaded successfully!")
-print(f"✓ Model dimension: {model.get_sentence_embedding_dimension()}")
+print(f"✓ Model dimension: {model.get_embedding_dimension()}")

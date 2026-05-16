@@ -49,7 +49,10 @@ CHROMA_PERSIST_DIR = str(CHROMA_DB_DIR)
 # Retrieval
 # ============================================================================
 RETRIEVAL_K = 5  # Number of passages to retrieve
-RELEVANCE_THRESHOLD = 0.5  # Minimum similarity score (0.0-1.0)
+RELEVANCE_THRESHOLD = 0.3  # Minimum similarity score (0.0-1.0)
+                           # With cosine distance on normalized embeddings:
+                           # 0.3 = reasonably similar (typical for semantic search)
+                           # 0.5 = very similar (too strict for short queries)
 
 # ============================================================================
 # LLM (Ollama)

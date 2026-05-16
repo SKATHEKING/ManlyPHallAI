@@ -39,6 +39,37 @@ ManlyPHallAI/
 └── PROJECT_EVOLUTION.md       # ✓ Learning log
 ```
 
+## Zero Cost Setup
+
+ManlyPHallAI is **completely free and open-source**. No API keys, no paid services, no cloud costs required.
+
+### What You Need
+- **Python 3.10+** (free)
+- **~2GB disk space** for embeddings model
+- **~8GB RAM** for local Llama model
+- Any modern laptop/desktop (Windows, macOS, Linux)
+
+### Free Tools
+All dependencies are open-source:
+- **Ollama** — Local LLM engine (free, MIT licensed)
+- **Chroma** — Vector database (free, Apache 2.0)
+- **sentence-transformers** — Embeddings (free, Apache 2.0)
+- **LangChain** — Text processing (free, MIT)
+- **Discord.py** — Discord integration (free, MIT)
+- **FastAPI** — API framework (free, BSD)
+
+### No Paid Services
+- ✓ No LLM API costs (uses local Ollama)
+- ✓ No cloud hosting required (runs on your machine)
+- ✓ No database subscriptions (Chroma is local)
+- ✓ No API keys or credentials (except Discord bot token)
+
+### Cost Projection
+**Phase 1**: $0/month (your hardware only)
+**Phases 2–5**: $0/month if self-hosted; €3–10/mo if cloud-hosted later (Hetzner VPS, AWS free tier)
+
+See [DECISIONS.md](DECISIONS.md) for cost-benefit analysis and migration paths.
+
 ## Next Steps
 
 ### Follow Phase 1a (Foundations) from IMPLEMENTATION_GUIDE.md:

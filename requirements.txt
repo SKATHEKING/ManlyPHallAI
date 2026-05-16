@@ -1,3 +1,10 @@
+# All dependencies are open-source and free. License summary:
+# - FastAPI, LangChain, Ollama, discord.py: MIT
+# - sentence-transformers, Chroma: Apache 2.0
+# - uvicorn, pydantic: BSD
+# - Other utilities: Permissive open-source licenses
+# No proprietary or paid dependencies required.
+
 # Web Framework
 fastapi>=0.115.0
 uvicorn[standard]>=0.30.0
