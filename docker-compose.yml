@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  # Ollama LLM Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: manlyphallai-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - manlyphallai
+
+  # FastAPI Application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: manlyphallai-api
+    ports:
+      - "8000:8000"
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - OLLAMA_URL=http://ollama:11434
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./data:/app/data
+      - ./backend:/app/backend
+      - ./scripts:/app/scripts
+    depends_on:
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - manlyphallai
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Discord Bot (optional, runs if DISCORD_TOKEN is set)
+  discord-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: manlyphallai-discord
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN:-}
+      - OLLAMA_URL=http://ollama:11434
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./data:/app/data
+      - ./bot:/app/bot
+    depends_on:
+      - ollama
+      - api
+    networks:
+      - manlyphallai
+    command: >
+      bash -c "
+        if [ -z \"$$DISCORD_TOKEN\" ]; then
+          echo 'DISCORD_TOKEN not set, Discord bot disabled'
+          sleep infinity
+        else
+          python -m bot.discord_bot
+        fi
+      "
+    profiles:
+      - discord
+
+volumes:
+  ollama_data:
+    driver: local
+
+networks:
+  manlyphallai:
+    driver: bridge
+
+# Usage:
+# 
+# Start all services:
+#   docker-compose up
+#
+# Start with Discord bot:
+#   DISCORD_TOKEN="your-token" docker-compose --profile discord up
+#
+# Start specific service:
+#   docker-compose up api
+#
+# View logs:
+#   docker-compose logs -f api
+#   docker-compose logs -f ollama
+#
+# Run tests:
+#   docker-compose exec api pytest tests/
+#
+# Stop all:
+#   docker-compose down
+#
+# Remove volumes:
+#   docker-compose down -v
