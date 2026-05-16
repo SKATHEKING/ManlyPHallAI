@@ -36,11 +36,44 @@ Before diving into specific technologies, familiarize yourself with these fundam
 
 ---
 
-## Phase 1: Book-Based Knowledge Engine
+## Phase 1: Discord-Based Knowledge Engine
+
+### Discord.py
+
+**What it is:** A Python library for building Discord bots and slash-command interfaces.
+
+**Official Resources:**
+- Docs: https://discordpy.readthedocs.io/
+- GitHub: https://github.com/Rapptz/discord.py
+
+**Step-by-Step Setup:**
+1. Install: `pip install discord.py`
+2. Create a bot in the Discord Developer Portal.
+3. Add a token to `.env` as `DISCORD_TOKEN`.
+4. Run the bot and invite it to a test server.
+
+**First Implementation:**
+```python
+import discord
+from discord.ext import commands
+
+intents = discord.Intents.default()
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+@bot.event
+async def on_ready():
+    print(f"Logged in as {bot.user}")
+```
+
+**Learning Path:**
+1. Build a bot that connects successfully.
+2. Add a slash command like `/ask`.
+3. Return a placeholder response.
+4. Connect the command to the retrieval and generation pipeline.
 
 ### FastAPI
 
-**What it is:** A lightweight, modern Python framework for building APIs.
+**What it is:** A lightweight, modern Python framework for support APIs and health endpoints.
 
 **Official Resources:**
 - Docs: https://fastapi.tiangolo.com/
@@ -48,7 +81,7 @@ Before diving into specific technologies, familiarize yourself with these fundam
 
 **Step-by-Step Setup:**
 1. Install: `pip install fastapi uvicorn`
-2. Create a `main.py` file with a simple endpoint.
+2. Create a `main.py` file with a simple health endpoint.
 3. Run: `uvicorn main.py:app --reload`
 4. Visit `http://localhost:8000/docs` to see the auto-generated API documentation.
 
@@ -58,21 +91,16 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-@app.get("/")
+@app.get("/health")
 def read_root():
-    return {"message": "Hello, Manly P. Hall AI Bot"}
-
-@app.post("/ask")
-def ask_question(question: str):
-    # Placeholder: later will call retrieval + generation
-    return {"question": question, "answer": "To be implemented"}
+    return {"status": "ready"}
 ```
 
 **Learning Path:**
-1. Build a simple endpoint that echoes input.
+1. Build a simple support endpoint.
 2. Add request/response models using Pydantic.
 3. Add error handling.
-4. Connect to your database layer.
+4. Connect to your admin and health workflows.
 
 ---
 

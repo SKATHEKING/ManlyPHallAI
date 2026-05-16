@@ -25,7 +25,7 @@ This document tracks the evolution of the Manly P. Hall AI Bot across all phases
 | 2026-05-25 | Phase 1b complete (Ingestion) | ⏳ Pending | Parsers, chunker, test with sample book |
 | 2026-05-30 | Phase 1c complete (Indexing) | ⏳ Pending | Embeddings, Chroma setup |
 | 2026-06-05 | Phase 1d complete (Retrieval+Gen) | ⏳ Pending | LLM integration and answer generation |
-| 2026-06-10 | Phase 1e complete (API) | ⏳ Pending | FastAPI endpoints and simple frontend |
+| 2026-06-10 | Phase 1e complete (Discord Bot) | ⏳ Pending | Discord slash commands and FastAPI support endpoints |
 | 2026-06-15 | Phase 1f complete (Testing) | ⏳ Pending | Curated question test set, quality validation |
 | 2026-06-20 | Phase 1 Done! | ⏳ Pending | Working book-based QA system |
 
@@ -339,16 +339,16 @@ Query
    - Sync speech with avatar lip-sync
    - Display talking avatar alongside text answer
 
-3. **Frontend Upgrade**
-   - Web player for audio + video
-   - Real-time streaming interface
-   - Mobile responsiveness
+3. **Discord Presentation Layer**
+   - Rich embeds for answer delivery
+   - Attachments for generated media
+   - Interactive responses and buttons
 
 ### Expected Timeline
 
 - TTS integration: 2–3 days
 - Avatar setup and sync: 3–5 days
-- Frontend redesign: 3–4 days
+- Discord presentation redesign: 3–4 days
 - **Phase 4 Total**: 10–15 days
 
 ---
@@ -416,7 +416,7 @@ Each phase adds a new layer without replacing previous ones:
 - **Python**: Async/await, FastAPI, data processing, API clients
 - **Databases**: Vector DB (Chroma), SQL (Phase 2+), caching (Phase 3+)
 - **DevOps**: Docker, CI/CD, logging, monitoring (Phases 4–5)
-- **Full Stack**: Backend (Python), frontend (HTML/JS), infrastructure
+- **Full Stack**: Backend (Python), Discord bot, infrastructure
 
 ### Soft Skills
 
@@ -457,7 +457,7 @@ ManlyPHallAI/
 ├── PROJECT_EVOLUTION.md           # This file
 │
 ├── backend/
-│   ├── main.py                    # FastAPI app
+│   ├── main.py                    # FastAPI support app
 │   ├── config.py                  # Centralized config
 │   │
 │   ├── ingestion/                 # Phase 1b
@@ -498,15 +498,19 @@ ManlyPHallAI/
 │   └── media/                     # Phase 4 (planned)
 │       └── __init__.py
 │
-├── frontend/
-│   ├── web/                       # Phase 1e
+├── bot/
+│   ├── __init__.py                # Discord bot package
+│   └── discord_bot.py             # Phase 1e
+│
+├── frontend/                      # Optional legacy/demo UI
+│   ├── web/
 │   │   ├── index.html
 │   │   └── app.js
 │   │
 │   ├── avatar/                    # Phase 4 (planned)
 │   │   └── player.html
 │   │
-│   └── cli/                       # Phase 1e (optional)
+│   └── cli/                       # Optional
 │       └── cli.py
 │
 ├── data/

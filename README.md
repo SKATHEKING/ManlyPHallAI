@@ -1,6 +1,6 @@
 # Manly P. Hall AI Bot
 
-A domain-specific AI assistant for esoteric knowledge, grounded in curated book sources with a clear evolution toward audiovisual presentation.
+A Discord-first AI assistant for esoteric knowledge, grounded in curated book sources and designed to answer inside a Discord server.
 
 **Status**: Phase 1 (Book-Based Knowledge Engine) — Architecture & Implementation Guide Complete
 
@@ -41,26 +41,26 @@ Build a specialized AI assistant that:
 
 1. **Domain Focus**: Narrow scope → better quality → faster iteration → proven value
 2. **Transparency**: Every answer cites sources → builds trust in esoteric domain
-3. **Learning Opportunity**: Full stack (ingestion → embedding → retrieval → generation → API) showcases skills
+- **Learning Opportunity**: Full stack (ingestion → embedding → retrieval → generation → Discord bot) showcases skills
 4. **Skill Showcase**: Demonstrates ML/NLP, backend architecture, decision-making, documentation
 
 ---
 
 ## Phase Overview
 
-### Phase 1: Book-Based Knowledge Engine ✍️ **[IN PROGRESS]**
+### Phase 1: Discord-Based Knowledge Engine ✍️ **[IN PROGRESS]**
 
-**Objective**: Build a text-based Q&A system grounded in books.
+**Objective**: Build a text-based Q&A system that answers questions inside Discord, grounded in books.
 
 **What's included**:
 - Book parsing (PDF, EPUB, TXT)
 - Semantic text chunking with overlap
 - Vector embeddings and retrieval (Chroma + sentence-transformers)
 - LLM-based answer generation (Ollama + Llama 2/3)
-- FastAPI REST server
-- Simple web UI
+- Discord bot interface with slash commands
+- FastAPI support endpoints for health and admin workflows
 
-**Tech Stack**: Python, FastAPI, LangChain, Chroma, Ollama, sentence-transformers
+**Tech Stack**: Python, discord.py, FastAPI, LangChain, Chroma, Ollama, sentence-transformers
 
 **Timeline**: 8–12 days of focused development
 
@@ -103,24 +103,24 @@ Production deployment, scaling, A/B testing infrastructure.
 cd ManlyPHallAI
 
 # 2. Create virtual environment
-python -m venv venv
-source venv/bin/activate  # macOS/Linux
+python3 -m venv .venv
+source .venv/bin/activate  # macOS/Linux
 
-# 3. Install dependencies
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 4. Download models (one-time, ~5 min)
+# 3. Download models (one-time, ~5 min)
 python scripts/download_embeddings_model.py
 
-# 5. Start Ollama (separate terminal)
+# 4. Start Ollama (separate terminal)
 ollama serve
 ollama pull llama2:7b
 
-# 6. Run API server
-python backend/main.py
+# 5. Configure Discord bot token in .env
+cp .env.example .env
 
-# 7. Open browser
-open http://localhost:8000
+# 6. Run the Discord bot
+python scripts/run_discord_bot.py
 ```
 
 ### Ingest a Book
@@ -152,17 +152,20 @@ ManlyPHallAI/
 │   └── PROJECT_EVOLUTION.md      ← Learning log
 │
 ├── backend/
-│   ├── main.py                   # FastAPI app
+│   ├── main.py                   # FastAPI support app
 │   ├── config.py                 # Centralized config
 │   ├── ingestion/                # Parse books
 │   ├── indexing/                 # Embeddings + vector store
 │   ├── retrieval/                # Vector search
 │   ├── generation/               # LLM answer generation
-│   └── api/                      # REST endpoints
+│   └── api/                      # Support endpoints
+│
+├── bot/
+│   ├── __init__.py               # Discord bot package
+│   └── discord_bot.py            # Discord bot entry point
 │
 ├── frontend/
-│   ├── web/                      # HTML/JS chat UI
-│   └── cli/                      # Command-line interface
+│   └── web/                      # Legacy browser demo UI
 │
 ├── data/
 │   ├── books/                    # User-provided book files
@@ -204,7 +207,7 @@ Following [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md):
 2. **1b (Ingestion)**: Parsers, chunker, test — 2–3 days
 3. **1c (Indexing)**: Embeddings, Chroma setup — 1–2 days
 4. **1d (Retrieval + Gen)**: LLM integration — 2–3 days
-5. **1e (API)**: FastAPI endpoints, frontend — 1–2 days
+5. **1e (Discord Bot)**: Slash commands, Discord responses, support API — 1–2 days
 6. **1f (Testing)**: Curated questions, quality validation — 1–2 days
 
 **Track progress** in [PROJECT_EVOLUTION.md](PROJECT_EVOLUTION.md).
@@ -215,7 +218,7 @@ Following [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md):
 - ✓ Queries retrieve relevant passages
 - ✓ LLM generates grounded answers with citations
 - ✓ API responds within 5 seconds end-to-end
-- ✓ Frontend works and sends/receives correctly
+- ✓ Discord bot responds to slash commands correctly
 - ✓ Citation accuracy > 95% on test set
 
 ---
@@ -229,7 +232,7 @@ Following [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md):
 - **Python Backend**: FastAPI, async/await, REST APIs
 - **Databases**: Vector DB (Chroma), SQL (Phase 2), caching (Phase 3)
 - **DevOps**: Containerization (Phase 5), CI/CD (Phase 5)
-- **Full Stack**: Backend, frontend, infrastructure
+- **Full Stack**: Backend, Discord bot, infrastructure
 
 ### Soft
 
@@ -408,8 +411,8 @@ The project will be considered successful when it can:
 
 This can be implemented with a practical, modern stack such as:
 
-- Frontend: Next.js or React
-- Backend: Python with FastAPI or Node.js
+- Interface: Discord bot with discord.py
+- Backend: Python with FastAPI support endpoints
 - Retrieval: embeddings plus a vector database
 - Storage: PostgreSQL and object storage
 - LLM layer: a hosted model provider or selected open model

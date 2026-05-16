@@ -9,7 +9,8 @@ Primary goal: ingest books, chunk them, index them, and answer questions from re
 Likely technologies:
 
 - Python for data processing and backend orchestration.
-- FastAPI for a lightweight API layer.
+- Discord.py for the primary Discord bot interface.
+- FastAPI for lightweight support endpoints and health checks.
 - PDF, EPUB, or text parsing libraries for source ingestion.
 - OCR tools if any source material exists only as scanned images.
 - Sentence chunking or token-based chunking utilities.
@@ -18,6 +19,7 @@ Likely technologies:
 - PostgreSQL for metadata, source tracking, and application records.
 - Object storage for raw book files and processed assets.
 - A hosted LLM provider or selected open model for initial answer generation.
+- Discord slash commands and rich embeds for the primary user experience.
 
 Supporting concerns:
 
@@ -116,14 +118,15 @@ These technologies are likely to be useful throughout multiple phases:
 - Rate limiting and abuse protection.
 - Secrets management for API keys and service credentials.
 - Structured logging and metrics collection.
-- A simple frontend framework such as Next.js or React.
+- Discord bot hosting, command handling, and rich message formatting.
 
 ## Recommended Practical Stack for the First Build
 
 If the goal is to move quickly and validate the concept, a pragmatic starting stack would be:
 
-- Frontend: Next.js or React.
-- Backend: FastAPI in Python.
+- Interface: Discord bot with discord.py.
+- Backend: FastAPI in Python for support endpoints.
+- Optional demo UI: Next.js or React.
 - Database: PostgreSQL with pgvector.
 - LLM: a hosted model provider.
 - Embeddings: a hosted embeddings API.

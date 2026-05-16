@@ -1,6 +1,6 @@
 """
-Main FastAPI application for Manly P. Hall AI Bot.
-Phase 1: Book-based question answering.
+Main FastAPI support application for Manly P. Hall AI Bot.
+Phase 1: Discord-based question answering support.
 """
 
 from fastapi import FastAPI

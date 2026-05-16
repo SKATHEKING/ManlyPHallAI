@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the system architecture for the Manly P. Hall AI Bot across all five phases of development. It outlines design decisions, component interactions, technology choices, and how the system evolves from a simple book-based retrieval system to a full audiovisual AI assistant.
+This document describes the system architecture for the Manly P. Hall AI Bot across all five phases of development. It outlines design decisions, component interactions, technology choices, and how the system evolves from a Discord-based retrieval system to a full audiovisual AI assistant.
 
 **Document Status**: Phase 1 focus (completed). Phases 2–5 are planned and will be updated as implementation progresses.
 
@@ -12,7 +12,7 @@ This document describes the system architecture for the Manly P. Hall AI Bot acr
 
 1. [Core Design Principles](#core-design-principles)
 2. [System Architecture Overview](#system-architecture-overview)
-3. [Phase 1: Book-Based Knowledge Engine](#phase-1-book-based-knowledge-engine)
+3. [Phase 1: Discord-Based Knowledge Engine](#phase-1-discord-based-knowledge-engine)
 4. [Phase 2: Grounding and Quality Control](#phase-2-grounding-and-quality-control)
 5. [Phase 3: Internet-Augmented Research](#phase-3-internet-augmented-research)
 6. [Phase 4: Audiovisual Experience](#phase-4-audiovisual-experience)
@@ -60,14 +60,14 @@ This document describes the system architecture for the Manly P. Hall AI Bot acr
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     User Interface Layer                     │
-│        (Chat UI, CLI, Voice Interface, Avatar Feed)         │
+│   (Discord Server, Slash Commands, Message Replies, Threads)│
 └────────────────────┬────────────────────────────────────────┘
                      │
                      │ HTTP / WebSocket
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                   API & Orchestration Layer                  │
-│      (FastAPI Server, Request Routing, Response Formatting) │
+│    (Discord Bot + FastAPI Support Server, Routing, Format)  │
 └─────┬──────────────────────┬──────────────────────┬──────────┘
       │                      │                      │
       ▼                      ▼                      ▼
@@ -96,9 +96,12 @@ ManlyPHallAI/
 │   ├── api/                    # Phase 1+: FastAPI routes and models
 │   ├── config.py               # Centralized configuration
 │   └── main.py                 # Application entry point
-├── frontend/                    # User-facing interface
-│   ├── web/                    # Phase 1: HTML/JS chat
-│   ├── cli/                    # Phase 1: Command-line interface
+├── bot/                        # Discord bot interface
+│   ├── __init__.py             # Bot package
+│   └── discord_bot.py          # Discord entry point
+├── frontend/                   # Legacy/demo interfaces
+│   ├── web/                    # Optional browser demo
+│   ├── cli/                    # Optional command-line interface
 │   └── avatar/                 # Phase 4: Avatar display
 ├── data/                        # Data storage
 │   ├── books/                  # Phase 1: Book files (PDF, EPUB, TXT)
@@ -116,11 +119,11 @@ ManlyPHallAI/
 
 ---
 
-## Phase 1: Book-Based Knowledge Engine
+## Phase 1: Discord-Based Knowledge Engine
 
-**Goal**: Build a text-based chatbot that answers questions using a curated collection of books.
+**Goal**: Build a Discord bot that answers questions using a curated collection of books.
 
-**Outcome**: A working system that retrieves relevant passages and generates grounded answers with citations.
+**Outcome**: A working system that retrieves relevant passages, generates grounded answers with citations, and replies inside Discord.
 
 ### Phase 1 Architecture
 
@@ -128,13 +131,13 @@ ManlyPHallAI/
 
 ```
 ┌──────────────────────────────────────────────┐
-│         User Interface (Web/CLI)             │
-│    Question Input → Response Display         │
+│       Discord Interface                     │
+│  Slash Commands, Mentions, Replies          │
 └────────────────────┬─────────────────────────┘
                      │
 ┌────────────────────▼─────────────────────────┐
-│         FastAPI REST Server                  │
-│   POST /ask, GET /status, POST /ingest       │
+│   Discord Bot + FastAPI Support Server      │
+│   /ask, /status, /ingest (support)          │
 └────────────────────┬─────────────────────────┘
                      │
     ┌────────────────┼────────────────┐
@@ -216,7 +219,7 @@ Output: Grounded answer with inline citations and source metadata
 Responsibility: Serve HTTP endpoints for question answering and ingestion management.
 
 Components:
-- **FastAPI App** (`main.py`): Main application instance.
+- **FastAPI Support App** (`main.py`): Health, admin, and support endpoints.
 - **Routes** (`api/routes.py`): Endpoint definitions.
 - **Request/Response Models** (`api/models.py`): Pydantic schemas for validation.
 - **Error Handling**: Middleware for logging and exception handling.
@@ -244,7 +247,7 @@ Parameters:
 #### Data Flow: Question Answering
 
 ```
-1. User submits question via Web UI or API
+1. User submits question in Discord via slash command or mention
    Question: "What did Manly P. Hall say about Freemasonry?"
 
 2. System receives request at POST /ask endpoint
@@ -291,7 +294,7 @@ Parameters:
      }
 
 8. Return to user
-   → Display answer and sources in Web UI
+   → Display answer and sources in Discord with citations
 ```
 
 #### Data Flow: Ingestion
@@ -443,7 +446,7 @@ class Answer:
 - Addition of `media/tts.py` for speech generation.
 - Addition of `media/avatar.py` for avatar control.
 - Extension of API to support streaming responses.
-- Frontend upgrade to handle audio playback and video display.
+- Discord bot upgrade to handle rich embeds, attachments, and interactive controls.
 - New media storage for generated audio/video files.
 
 ---
@@ -480,8 +483,8 @@ class Answer:
 | **Embeddings** | sentence-transformers (`all-MiniLM-L6-v2`) | Lightweight (22MB), fast inference, no GPU needed, works offline |
 | **Vector DB** | Chroma | Local mode for Phase 1; persistent storage; easy to migrate to server mode later |
 | **LLM** | Ollama + Llama 2/3 | Local execution, no API costs, full privacy, can run offline |
-| **CLI** | Click or Typer | Easy command-line argument handling |
-| **Web UI** | HTML, JavaScript, Fetch API | Lightweight, no build step required |
+| **Discord Bot** | discord.py | Native Discord UX, slash commands, rich embeds |
+| **Support API** | FastAPI | Health checks, admin workflows, ingestion support |
 | **Testing** | pytest | Standard Python testing framework |
 | **Logging** | Python `logging` module | Built-in, configurable |
 
@@ -653,7 +656,7 @@ Developer Machine
 ├── Ollama (running Llama locally)
 ├── FastAPI server (localhost:8000)
 ├── Chroma (persistent to disk)
-└── Web UI (localhost:3000 or embed in HTML)
+└── Discord Bot (guild channels, slash commands)
 ```
 
 **How to Run**:
@@ -685,7 +688,7 @@ Developer Machine
 ├── FastAPI server
 ├── Chroma (vectors)
 ├── SQLite (evaluation results, metrics)
-└── Web UI
+└── Discord Bot
 ```
 
 ### Phase 3–4: Cloud-Integrated
@@ -693,7 +696,7 @@ Developer Machine
 Add external services:
 
 ```
-Client (Web/Mobile)
+Discord Client (Desktop/Mobile)
     ↓
 CDN (static assets)
     ↓

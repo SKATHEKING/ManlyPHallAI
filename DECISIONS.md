@@ -136,7 +136,7 @@ This document provides detailed rationale for every major architectural and tech
 | **3. Rust** | Fast, safe, excellent perf | Steep learning curve, slower dev |
 | **4. Go** | Fast, good concurrency | Smaller ML ecosystem |
 
-**Decision**: Python for backend; JavaScript for frontend.
+**Decision**: Python for backend; Discord.py for the primary user interface.
 
 **Rationale**:
 1. **ML Ecosystem**: FastAPI, transformers, Chroma, LangChain all Python-native.
@@ -157,7 +157,7 @@ This document provides detailed rationale for every major architectural and tech
 
 ---
 
-### Decision T2: FastAPI as Web Framework
+### Decision T2: FastAPI as Support API
 
 **Problem**: Which framework for building REST API?
 
@@ -170,7 +170,7 @@ This document provides detailed rationale for every major architectural and tech
 | **3. Django** | Feature-rich, batteries-included | Heavyweight, complex setup |
 | **4. Tornado** | Async-first, fast | Less popular, fewer extensions |
 
-**Decision**: FastAPI for excellent developer experience and modern features.
+**Decision**: FastAPI for lightweight support endpoints, health checks, and future admin workflows.
 
 **Rationale**:
 1. **Built-in API Documentation**: Automatic Swagger/OpenAPI docs.
@@ -187,7 +187,7 @@ This document provides detailed rationale for every major architectural and tech
 
 **Reversibility**: HIGH
 - Switching to Flask or Django is doable.
-- API remains the same; frontend unaffected.
+- Support API remains isolated from the Discord bot interface.
 - No tech lock-in.
 
 ---

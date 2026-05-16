@@ -4,19 +4,23 @@
 
 ```
 ManlyPHallAI/
-├── backend/                    # Python FastAPI backend
+├── backend/                    # Python support backend
 │   ├── config.py              # ✓ Configuration (ready)
-│   ├── main.py                # ✓ FastAPI app (ready)
+│   ├── main.py                # ✓ FastAPI support app (ready)
 │   ├── ingestion/             # Phase 1b: Parsers & chunking
 │   ├── indexing/              # Phase 1c: Embeddings & vector store
 │   ├── retrieval/             # Phase 1d: Vector search
 │   ├── generation/            # Phase 1d: LLM integration
-│   └── api/                   # Phase 1e: REST endpoints
+│   └── api/                   # Phase 1e: Support endpoints
+│
+├── bot/
+│   ├── __init__.py            # Discord bot package
+│   └── discord_bot.py         # Discord bot entry point
 │
 ├── frontend/
-│   └── web/                   # ✓ Chat UI (ready)
-│       ├── index.html         # ✓ HTML interface
-│       └── app.js             # ✓ JavaScript client
+│   └── web/                   # Optional legacy demo UI
+│       ├── index.html         # HTML interface
+│       └── app.js             # JavaScript client
 │
 ├── data/                      # Data storage
 │   ├── books/                 # Book files go here
@@ -41,8 +45,8 @@ ManlyPHallAI/
 
 1. **Create Virtual Environment**
    ```bash
-   python -m venv venv
-   source venv/bin/activate
+   python3 -m venv .venv
+   source .venv/bin/activate
    ```
 
 2. **Install Dependencies**
@@ -55,17 +59,22 @@ ManlyPHallAI/
    python scripts/download_embeddings_model.py
    ```
 
-4. **Start Ollama** (in separate terminal)
+4. **Configure Discord**
+   ```bash
+   cp .env.example .env
+   ```
+   Add your bot token and guild ID to `.env`.
+
+5. **Start Ollama** (in separate terminal)
    ```bash
    ollama serve
    ollama pull llama2:7b
    ```
 
-5. **Test Server**
+6. **Run the Discord Bot**
    ```bash
-   python backend/main.py
+   python scripts/run_discord_bot.py
    ```
-   Visit: http://localhost:8000/health
 
 ### Then Proceed to Phase 1b, 1c, etc.
 
@@ -82,9 +91,9 @@ See [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) for complete step-by-step
 
 ```bash
 # Verify installation
-python -c "import fastapi; import chromadb; print('✓ Dependencies OK')"
+python -c "import fastapi; import chromadb; import discord; print('✓ Dependencies OK')"
 
-# Check backend health
+# Check support API health
 curl http://localhost:8000/health
 
 # View project structure

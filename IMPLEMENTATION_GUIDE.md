@@ -1,8 +1,24 @@
-# Phase 1 Implementation Guide
+# 1. Create virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Download embedding model
+python scripts/download_embeddings_model.py
+
+# 4. Start Ollama (separate terminal)
+ollama serve
+ollama pull llama2:7b
+
+# 5. Test the server
+python backend/main.py
+# Visit: http://localhost:8000/health# Phase 1 Implementation Guide
 
 ## Overview
 
-This guide provides detailed, step-by-step instructions for implementing the Book-Based Knowledge Engine (Phase 1) of the Manly P. Hall AI Bot. Follow each task in sequence; they are ordered to maximize learning and minimize debugging.
+This guide provides detailed, step-by-step instructions for implementing the Discord-Based Knowledge Engine (Phase 1) of the Manly P. Hall AI Bot. Follow each task in sequence; they are ordered to maximize learning and minimize debugging.
 
 **Expected Timeline**: 8–12 days of focused development (2–3 hours per day).
 
@@ -21,7 +37,7 @@ This guide provides detailed, step-by-step instructions for implementing the Boo
 2. [Phase 1b: Ingestion Pipeline](#phase-1b-ingestion-pipeline)
 3. [Phase 1c: Indexing and Vector Storage](#phase-1c-indexing-and-vector-storage)
 4. [Phase 1d: Retrieval and Generation](#phase-1d-retrieval-and-generation)
-5. [Phase 1e: API and Server](#phase-1e-api-and-server)
+5. [Phase 1e: Discord Bot and Support API](#phase-1e-discord-bot-and-support-api)
 6. [Phase 1f: Integration and Testing](#phase-1f-integration-and-testing)
 7. [Verification Checklist](#verification-checklist)
 8. [Troubleshooting](#troubleshooting)
@@ -40,7 +56,8 @@ Create the following directories:
 
 ```bash
 mkdir -p backend/{ingestion,indexing,retrieval,generation,api}
-mkdir -p frontend/{web,cli}
+mkdir -p bot
+mkdir -p frontend/web
 mkdir -p data/{books,chroma_db,models}
 mkdir -p tests
 mkdir -p scripts
@@ -57,6 +74,9 @@ Expected output:
 ```
 backend/:
 ingestion/  indexing/  retrieval/  generation/  api/  __init__.py  main.py  config.py
+
+bot/:
+__init__.py  discord_bot.py
 
 data/:
 books/  chroma_db/  models/  ingestion_log.json
@@ -409,7 +429,7 @@ You should see:
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 ```
 
-Visit `http://localhost:8000/health` in your browser or via curl:
+Visit `http://localhost:8000/health` via curl:
 ```bash
 curl http://localhost:8000/health
 ```
@@ -2065,31 +2085,35 @@ git commit -m "Phase 1d: Implement retrieval and generation layers"
 
 ---
 
-## Phase 1e: API and Server (1–2 days)
+## Phase 1e: Discord Bot and Support API (1–2 days)
 
-[Due to token limits, I'll provide a condensed version. Create these files:]
+Build the Discord server interface first, then keep a small FastAPI layer for health, admin, and future automation.
 
-### Task 1e.1: Create `backend/api/models.py`
+### Task 1e.1: Create `bot/discord_bot.py`
 
-Define Pydantic models for API requests/responses.
+Define the Discord client, intents, and slash command entry points.
 
-### Task 1e.2: Create `backend/api/routes.py`
+### Task 1e.2: Create `scripts/run_discord_bot.py`
 
-Define FastAPI endpoints.
+Provide a convenient command-line entry point for launching the bot.
 
-### Task 1e.3: Update `backend/main.py`
+### Task 1e.3: Update `backend/api/models.py`
 
-Import and register routes.
+Keep lightweight Pydantic models for support endpoints and future admin tasks.
 
-### Task 1e.4: Create Frontend
+### Task 1e.4: Update `backend/api/routes.py`
 
-Simple HTML/JS chat interface.
+Keep health and admin endpoints available for ops and debugging.
+
+### Task 1e.5: Update `backend/main.py`
+
+Expose the FastAPI support app and health endpoint.
 
 ---
 
 ## Phase 1f: Integration and Testing
 
-Testing with real queries and refining answers.
+Testing with real Discord queries, citation quality, and support endpoints.
 
 ---
 
@@ -2101,7 +2125,8 @@ Testing with real queries and refining answers.
 - [ ] Queries retrieve relevant passages
 - [ ] LLM generates grounded answers with citations
 - [ ] API endpoints respond correctly
-- [ ] Frontend loads and sends/receives queries
+- [ ] Discord bot connects and responds to /status
+- [ ] Support API health endpoint responds correctly
 
 ---
 

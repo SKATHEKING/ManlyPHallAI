@@ -6,6 +6,11 @@ Centralized settings for ingestion, indexing, retrieval, and generation.
 import os
 from pathlib import Path
 
+
+def _optional_int_env(name: str) -> int | None:
+    value = os.getenv(name)
+    return int(value) if value else None
+
 # ============================================================================
 # Paths
 # ============================================================================
@@ -61,6 +66,14 @@ LLM_TOP_P = 0.9  # Nucleus sampling
 API_HOST = "0.0.0.0"
 API_PORT = 8000
 API_RELOAD = True  # Auto-reload on code changes during development
+
+# ============================================================================
+# Discord Bot
+# ============================================================================
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
+DISCORD_GUILD_ID = _optional_int_env("DISCORD_GUILD_ID")
+DISCORD_COMMAND_PREFIX = os.getenv("DISCORD_COMMAND_PREFIX", "!")
+DISCORD_STATUS_CHANNEL_ID = _optional_int_env("DISCORD_STATUS_CHANNEL_ID")
 
 # ============================================================================
 # Logging
