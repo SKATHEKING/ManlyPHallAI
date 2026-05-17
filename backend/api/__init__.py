@@ -18,6 +18,8 @@ Endpoints:
 from backend.api.routes import (
     router,
     initialize_store,
+)
+from backend.api.models import (
     AskRequest,
     AskResponse,
     IngestRequest,

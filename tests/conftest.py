@@ -149,8 +149,10 @@ def api_client():
     """Return HTTP client for API testing"""
     from fastapi.testclient import TestClient
     from backend.main import app
-
-    return TestClient(app)
+    # Use TestClient as a context manager to ensure the FastAPI lifespan
+    # (startup/shutdown) events are executed, which initializes the store.
+    with TestClient(app) as client:
+        yield client
 
 
 @pytest.fixture

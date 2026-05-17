@@ -36,10 +36,18 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, UploadFile, File
-from pydantic import BaseModel, Field
 
+from backend.api.models import (
+    AskRequest,
+    AskResponse,
+    BooksResponse,
+    DeleteResponse,
+    IngestResponse,
+    StatusResponse,
+)
 from backend.generation import answer_question
-from backend.indexing import ChromaStore, index_chunks
+from backend.indexing import ChromaStore
+from backend.indexing.embedder import embed_texts
 from backend.ingestion import ingest_document
 from backend.config import BOOKS_DIR
 
@@ -51,71 +59,6 @@ router = APIRouter(prefix="/api", tags=["RAG"])
 
 # Global store instance (initialized on startup)
 _store: Optional[ChromaStore] = None
-
-
-# ============================================================================
-# Pydantic Models (Request/Response Schemas)
-# ============================================================================
-
-
-class AskRequest(BaseModel):
-    """Request model for /ask endpoint."""
-    
-    question: str = Field(..., description="User's question", min_length=1, max_length=1000)
-    source_filter: Optional[str] = Field(
-        None,
-        description="Optional: restrict to specific book filename"
-    )
-    k: int = Field(5, description="Number of sources to retrieve", ge=1, le=20)
-
-
-class AskResponse(BaseModel):
-    """Response model for /ask endpoint."""
-    
-    answer: str = Field(..., description="Generated answer")
-    citations: list[str] = Field(..., description="Source citations")
-    confidence: float = Field(..., description="Confidence score (0-1)")
-    num_sources: int = Field(..., description="Number of retrieved sources")
-    question: str = Field(..., description="Original question")
-
-
-class IngestRequest(BaseModel):
-    """Request model for /ingest endpoint."""
-    
-    filename: str = Field(..., description="Original filename", max_length=255)
-
-
-class IngestResponse(BaseModel):
-    """Response model for /ingest endpoint."""
-    
-    success: bool = Field(..., description="Whether ingestion succeeded")
-    filename: str = Field(..., description="Ingested filename")
-    chunks_added: int = Field(..., description="Number of chunks indexed")
-    message: str = Field(..., description="Status message")
-
-
-class StatusResponse(BaseModel):
-    """Response model for /status endpoint."""
-    
-    status: str = Field("ok", description="System status")
-    indexed_chunks: int = Field(..., description="Total chunks in index")
-    books_indexed: int = Field(..., description="Number of books")
-    api_version: str = Field("1.0", description="API version")
-
-
-class BooksResponse(BaseModel):
-    """Response model for /books endpoint."""
-    
-    books: list[str] = Field(..., description="List of indexed book filenames")
-    count: int = Field(..., description="Total number of books")
-
-
-class DeleteResponse(BaseModel):
-    """Response model for /books/{filename} DELETE."""
-    
-    success: bool = Field(..., description="Whether deletion succeeded")
-    filename: str = Field(..., description="Deleted filename")
-    message: str = Field(..., description="Status message")
 
 
 # ============================================================================
@@ -249,9 +192,17 @@ async def ingest(
         
         # Ingest document
         chunks = ingest_document(file_path)
+
+        if not chunks:
+            raise HTTPException(
+                status_code=400,
+                detail=f"No content could be extracted from {file.filename}",
+            )
+
+        embeddings = embed_texts([chunk.text for chunk in chunks])
         
         # Index chunks
-        _store.add_chunks(chunks, index_chunks([]))  # This needs fixing - see note below
+        _store.add_chunks(chunks, embeddings)
         
         logger.info(f"Ingested {file.filename}: {len(chunks)} chunks")
         

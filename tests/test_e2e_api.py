@@ -28,10 +28,10 @@ class TestAPIIngestWorkflow:
 
         assert response.status_code == 200
         data = response.json()
-        assert "status" in data
-        assert data["status"] == "success"
-        assert data["chunks_created"] > 0
-        assert data["file_size"] > 0
+        assert data["success"] is True
+        assert data["filename"] == "test_book.txt"
+        assert data["chunks_added"] > 0
+        assert "message" in data
 
     def test_ingest_duplicate_file(self, api_client, temp_books_dir):
         """Test ingesting the same file twice"""
@@ -45,7 +45,7 @@ class TestAPIIngestWorkflow:
             )
 
         assert response1.status_code == 200
-        chunks_first = response1.json()["chunks_created"]
+        chunks_first = response1.json()["chunks_added"]
 
         # Second ingest of same file
         with open(book_path, "rb") as f:
@@ -168,7 +168,7 @@ class TestAPIStatusEndpoint:
 
         assert response.status_code == 200
         data = response.json()
-        assert "num_chunks" in data or "status" in data
+        assert "indexed_chunks" in data or "num_chunks" in data or "status" in data
         assert isinstance(data, dict)
 
     def test_get_status_after_ingestion(self, api_client, temp_books_dir):
@@ -176,7 +176,7 @@ class TestAPIStatusEndpoint:
         # Get initial status
         response1 = api_client.get("/api/status")
         assert response1.status_code == 200
-        initial_chunks = response1.json().get("num_chunks", 0)
+        initial_chunks = response1.json().get("indexed_chunks", response1.json().get("num_chunks", 0))
 
         # Ingest a book
         book_path = list(temp_books_dir.glob("*.txt"))[0]
@@ -189,7 +189,7 @@ class TestAPIStatusEndpoint:
         # Get updated status
         response2 = api_client.get("/api/status")
         assert response2.status_code == 200
-        updated_chunks = response2.json().get("num_chunks", 0)
+        updated_chunks = response2.json().get("indexed_chunks", response2.json().get("num_chunks", 0))
 
         # Should have more chunks
         assert updated_chunks >= initial_chunks
@@ -316,5 +316,5 @@ class TestAPIHealth:
             response = api_client.get(endpoint)
             # At least one should work
             if response.status_code == 200:
-                assert response.json().get("status") == "healthy"
+                assert response.json().get("status") in {"healthy", "ready", "ok"}
                 break

@@ -6,7 +6,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # 3. Download embedding model
-python scripts/download_embeddings_model.py
+python3 scripts/download_embeddings_model.py
 
 # 4. Start Ollama (separate terminal)
 ollama serve

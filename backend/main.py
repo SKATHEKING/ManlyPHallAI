@@ -24,8 +24,18 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+
+import os
+import sys
+from pathlib import Path
+
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from backend.config import API_HOST, API_PORT
 from backend.api.routes import router, initialize_store
+
 
 
 # ============================================================================

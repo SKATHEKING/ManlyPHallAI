@@ -8,6 +8,8 @@ A Discord-first AI assistant for esoteric knowledge, grounded in curated book so
 
 ## 📖 Documentation Hub
 
+The canonical documentation landing page is [docs/README.md](docs/README.md).
+
 **Start here** to understand the project:
 
 | Document | Purpose | Audience |

@@ -13,10 +13,17 @@ To be implemented in Phase 1a.
 from __future__ import annotations
 
 import os
+import sys
+from pathlib import Path
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backend.config import EMBEDDING_MODEL, MODELS_DIR
 
-try:
+try:    # Ensure the models directory exists
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
     from sentence_transformers import SentenceTransformer
 except ModuleNotFoundError as exc:  # pragma: no cover - environment guard
     raise SystemExit(

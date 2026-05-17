@@ -32,10 +32,13 @@ from backend.indexing import ChromaStore
 from backend.generation import answer_question
 from backend.retrieval import retrieve_chunks
 
+from dotenv import load_dotenv
 
 # ============================================================================
 # Configuration
 # ============================================================================
+
+load_dotenv()
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 DISCORD_GUILD_ID = os.getenv("DISCORD_GUILD_ID")  # Optional: for faster sync
