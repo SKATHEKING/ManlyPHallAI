@@ -20,3 +20,7 @@ The repository still has a few documentation files at the project root for backw
 - [Getting started](../GETTING_STARTED.md)
 - [Decisions log](../DECISIONS.md)
 - [Study plan](STUDY_PLAN.md)
+- [Condensed study plan](STUDY_PLAN_CONDENSED.md)
+- [Study checklist](STUDY_CHECKLIST.md)
+- [Study tracker](STUDY_TRACKER.md)
+- [Study notes](STUDY_NOTES.md)
