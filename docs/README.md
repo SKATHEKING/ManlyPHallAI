@@ -19,3 +19,4 @@ The repository still has a few documentation files at the project root for backw
 - [Implementation guide](../IMPLEMENTATION_GUIDE.md)
 - [Getting started](../GETTING_STARTED.md)
 - [Decisions log](../DECISIONS.md)
+- [Study plan](STUDY_PLAN.md)
