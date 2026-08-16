@@ -38,13 +38,21 @@ import requests
 import json
 from typing import Optional
 
-from backend.config import OLLAMA_MODEL, LLM_TEMPERATURE
+from backend.config import get_settings
 
 
 logger = logging.getLogger(__name__)
 
-# Ollama API endpoint (local by default)
-OLLAMA_API_URL = "http://localhost:11434/api"
+
+def _default_api_url() -> str:
+    """
+    Ollama API endpoint (local by default).
+
+    Derived from settings.ollama_base_url rather than hardcoded, so the
+    OLLAMA_BASE_URL / OLLAMA_URL environment variables that .env.example and
+    docker-compose.yml already advertise finally take effect.
+    """
+    return f"{get_settings().ollama_base_url.rstrip('/')}/api"
 
 
 class OllamaLLM:
@@ -65,9 +73,9 @@ class OllamaLLM:
     
     def __init__(
         self,
-        model: str = OLLAMA_MODEL,
-        api_url: str = OLLAMA_API_URL,
-        temperature: float = LLM_TEMPERATURE,
+        model: str | None = None,
+        api_url: str | None = None,
+        temperature: float | None = None,
     ):
         """
         Initialize Ollama LLM client.
@@ -80,9 +88,12 @@ class OllamaLLM:
                         1.0 = creative/random
                         0.3 = good balance (default)
         """
-        self.model = model
-        self.api_url = api_url
-        self.temperature = temperature
+        settings = get_settings()
+        self.model = settings.ollama_model if model is None else model
+        self.api_url = _default_api_url() if api_url is None else api_url
+        self.temperature = settings.llm_temperature if temperature is None else temperature
+        self._top_p = settings.llm_top_p
+        self._top_k = settings.llm_top_k
         
         # Verify Ollama is running
         self._verify_ollama()
@@ -162,8 +173,8 @@ class OllamaLLM:
                     "options": {
                         "temperature": temp,
                         "num_predict": max_tokens,
-                        "top_p": 0.9,  # Nucleus sampling
-                        "top_k": 40,   # Top-k sampling
+                        "top_p": self._top_p,  # Nucleus sampling
+                        "top_k": self._top_k,  # Top-k sampling
                     },
                 },
                 timeout=300,  # 5 minute timeout for long responses
@@ -213,8 +224,8 @@ class OllamaLLM:
                     "stream": True,  # Streaming mode
                     "options": {
                         "temperature": temp,
-                        "top_p": 0.9,
-                        "top_k": 40,
+                        "top_p": self._top_p,
+                        "top_k": self._top_k,
                     },
                 },
                 timeout=300,
@@ -253,7 +264,7 @@ class OllamaLLM:
 def generate_answer(
     prompt: str,
     retrieved_chunks: list[dict],
-    model: str = OLLAMA_MODEL,
+    model: str | None = None,
 ) -> str:
     """
     High-level function to generate an answer from retrieved chunks.

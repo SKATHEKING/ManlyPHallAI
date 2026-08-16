@@ -182,6 +182,9 @@ async def ingest(
             )
         
         # Save file temporarily
+        # config no longer creates directories on import, so ensure it exists here,
+        # at the point where something is actually written.
+        BOOKS_DIR.mkdir(parents=True, exist_ok=True)
         file_path = BOOKS_DIR / file.filename
         content = await file.read()
         

@@ -38,17 +38,21 @@ import logging
 from typing import Any
 
 from backend.indexing.embedder import embed_texts
-from backend.config import RELEVANCE_THRESHOLD, RETRIEVAL_K
+from backend.config import get_settings
 
 
 logger = logging.getLogger(__name__)
 
 
+# k and threshold default to None rather than to config values directly. A default
+# argument is evaluated once, when the function is defined, so binding config at
+# that point froze the value at import time and made overriding it impossible.
+# Resolving None against the settings at call time is what makes them tunable.
 def retrieve_chunks(
     query: str,
     store: Any,
-    k: int = RETRIEVAL_K,
-    threshold: float = RELEVANCE_THRESHOLD,
+    k: int | None = None,
+    threshold: float | None = None,
 ) -> list[dict]:
     """
     Retrieve relevant chunks for a user query.
@@ -87,7 +91,11 @@ def retrieve_chunks(
     if not query or not query.strip():
         logger.warning("Empty query provided to retrieve_chunks")
         return []
-    
+
+    settings = get_settings()
+    k = settings.retrieval_k if k is None else k
+    threshold = settings.relevance_threshold if threshold is None else threshold
+
     # Step 1: Convert query to embedding
     # Use same embedding model as chunks for consistency
     query_embedding = embed_texts(query)[0]  # Returns 384-dim vector
@@ -149,8 +157,8 @@ def retrieve_chunks(
 def retrieve_with_filters(
     query: str,
     store: Any,
-    k: int = RETRIEVAL_K,
-    threshold: float = RELEVANCE_THRESHOLD,
+    k: int | None = None,
+    threshold: float | None = None,
     source_filter: str | None = None,
 ) -> list[dict]:
     """
@@ -169,6 +177,8 @@ def retrieve_with_filters(
     Returns:
         List of filtered results (same format as retrieve_chunks)
     """
+    k = get_settings().retrieval_k if k is None else k
+
     # Get all results first
     results = retrieve_chunks(query, store, k=k * 2, threshold=threshold)  # Get more to filter
     
