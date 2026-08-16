@@ -26,7 +26,8 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import NamedTuple
+
+from backend.core.types import TextSegment
 
 import pypdf
 import ebooklib
@@ -36,18 +37,8 @@ from ebooklib import epub
 logger = logging.getLogger(__name__)
 
 
-class ParsedDocument(NamedTuple):
-    """
-    Represents a parsed document with text and metadata.
-    
-    Attributes:
-        text: The extracted text content from the document (or a page/chapter of it)
-        metadata: Dictionary containing source info (filename, page/chapter number, format, etc.)
-                  This metadata is preserved through the entire ingestion pipeline and
-                  allows us to cite exact sources when generating answers
-    """
-    text: str
-    metadata: dict
+# Alias onto the shared type; the original docstring now lives on TextSegment.
+ParsedDocument = TextSegment
 
 
 def parse_pdf(file_path: Path | str) -> list[ParsedDocument]:

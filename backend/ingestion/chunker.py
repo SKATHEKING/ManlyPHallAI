@@ -34,7 +34,7 @@ Configuration (from backend.config):
 from __future__ import annotations
 
 import logging
-from typing import NamedTuple
+from backend.core.types import TextSegment
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from tokenizers import Tokenizer as TokenizerLib
@@ -45,20 +45,10 @@ from backend.config import CHUNK_OVERLAP, CHUNK_SIZE
 logger = logging.getLogger(__name__)
 
 
-class TextChunk(NamedTuple):
-    """
-    Represents a text chunk with content and metadata.
-    
-    Attributes:
-        text: The chunk of text (roughly CHUNK_SIZE tokens)
-        metadata: Dictionary containing:
-                  - Original metadata from parsed doc (source, page, chapter, etc.)
-                  - chunk_index: Which chunk this is (0, 1, 2, ...)
-                  - total_chunks: Total number of chunks from this document
-                  - chunk_tokens: Actual token count for this chunk
-    """
-    text: str
-    metadata: dict
+# One shared type replaces the three identical NamedTuples that used to exist.
+# The name is kept as an alias so `from backend.ingestion.chunker import TextChunk`
+# still works; the original docstring now lives on TextSegment.
+TextChunk = TextSegment
 
 
 # Initialize tokenizer for accurate token counting
