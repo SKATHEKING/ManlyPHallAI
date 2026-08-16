@@ -2,26 +2,9 @@
 Ingestion module for parsing and extracting text from book files.
 Handles PDF, EPUB, and plain text formats.
 
-This module orchestrates the entire ingestion pipeline:
-1. Parse documents (PDF/EPUB/TXT) → extract text and structure
-2. Clean text → remove control chars, HTML, normalize whitespace
-3. Chunk text → split into semantic pieces with overlap
-
 Main entry point: ingest_document(file_path) -> list[Chunk]
 
-Example usage:
-    from backend.ingestion import ingest_document
-    
-    chunks = ingest_document("data/books/my_book.pdf")
-    for chunk in chunks:
-        print(f"Text: {chunk.text[:100]}...")
-        print(f"Page: {chunk.metadata['page']}")
-        print(f"Chunk {chunk.metadata['chunk_index']} of {chunk.metadata['total_chunks']}")
-
-The ingestion pipeline is the foundation for the entire system:
-- Output chunks are passed to the indexing layer (for embeddings + vector DB)
-- Metadata is preserved so we can cite sources accurately
-- Cleaning ensures text quality for downstream ML models
+Pipeline overview and examples: docs/modules/packages.md
 """
 
 from __future__ import annotations

@@ -1,35 +1,10 @@
 """
 Query-based retrieval of relevant book passages.
 
-This module handles Phase 1d (retrieval step):
-1. Convert user query to embedding
-2. Search vector database for similar chunks
-3. Filter by relevance threshold
-4. Return ranked results with metadata for citation
+Embed the query, search the store, filter by relevance, return ranked passages
+with the metadata needed for citation.
 
-Main function: retrieve_chunks(query, store, k=5) -> List[dict]
-
-The retriever bridges user queries and the indexed knowledge base.
-Input: Natural language query (string)
-Process: Embed → Search → Filter → Rank
-Output: List of relevant passages with sources for answer generation
-
-Example usage:
-    from backend.retrieval import retrieve_chunks
-    from backend.indexing import ChromaStore
-    
-    # Load existing store
-    store = ChromaStore()
-    
-    # Retrieve relevant chunks
-    results = retrieve_chunks("What is enlightenment?", store, k=5)
-    
-    # Results contain:
-    # - text: chunk content
-    # - source: filename
-    # - page: page number (for PDFs)
-    # - chapter: chapter name (for EPUBs)
-    # - score: similarity score
+Result shape, scoring and the threshold: docs/modules/retrieval/retriever.md
 """
 
 from __future__ import annotations

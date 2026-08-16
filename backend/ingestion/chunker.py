@@ -2,33 +2,8 @@
 Text chunking utilities for semantic splitting with overlap.
 Uses LangChain's RecursiveCharacterTextSplitter.
 
-Why chunking?
-- Large documents need to be broken into smaller pieces for:
-  1. Embedding (models have max input length)
-  2. Retrieval (find relevant passages, not whole books)
-  3. Context windows (LLM prompt size is limited)
-
-Why "recursive" splitting?
-- It respects document structure by trying separators in order:
-  1. First split on paragraph breaks (\\n\\n) - preserve paragraphs
-  2. If too large, split on newlines (\\n) - preserve lines
-  3. If still too large, split on sentences (. )
-  4. If still too large, split on spaces - last resort
-- This keeps semantic units together
-
-Why overlap?
-- Chunks at boundaries might lose context
-- 50% overlap means concepts appearing at end of chunk N
-  also appear at start of chunk N+1
-- Example: "Concept X is important. Concept X helps with Y."
-  If "Concept X is important." is at chunk boundary:
-  - Chunk 1 ends: "Concept X is important."
-  - Chunk 2 starts: "Concept X helps with Y."
-  Both chunks have "Concept X" so query for "Concept" finds both
-
-Configuration (from backend.config):
-- CHUNK_SIZE: 256 tokens (roughly 1000 characters)
-- CHUNK_OVERLAP: 50% (overlap amount calculated from size)
+Why chunking, why recursive splitting, why overlap, and the configuration:
+docs/modules/ingestion/chunker.md
 """
 
 from __future__ import annotations

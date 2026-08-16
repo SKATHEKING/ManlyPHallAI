@@ -1,32 +1,11 @@
 """
 FastAPI route definitions for REST endpoints.
 
-This module provides HTTP API endpoints for the RAG system (Phase 1e):
-- POST /ask: Answer a question using indexed books
-- POST /ingest: Add a new book to the index
-- GET /status: System health and statistics
-- GET /books: List indexed books
-- DELETE /books/{filename}: Remove a book from index
+Exposes /ask, /ingest, /status, /books and DELETE /books/{filename} over the
+ingestion → indexing → retrieval → generation pipeline.
 
-All endpoints use the ingestion → indexing → retrieval → generation pipeline.
-
-This layer exposes the RAG system for:
-- Web applications
-- Discord bot backend
-- External integrations
-- Direct HTTP clients
-
-Example usage:
-    POST /ask
-    {"question": "What is enlightenment?"}
-    
-    Response:
-    {
-        "answer": "Enlightenment is...",
-        "citations": ["book.pdf, page 42", ...],
-        "confidence": 0.75,
-        "num_sources": 3
-    }
+Endpoint list, example payloads and validation rules:
+docs/modules/api/routes.md
 """
 
 from __future__ import annotations

@@ -1,25 +1,11 @@
 """
 Document parsers for ingesting books in multiple formats.
 
-This module provides functions to extract text from different file formats
-and preserve important metadata (page numbers, chapter names, file info).
+Extracts text from PDF, EPUB and TXT while preserving the metadata needed for
+citation (page numbers, chapter names, file info).
 
-Supported formats:
-- PDF: Extract text page-by-page and track page numbers
-- EPUB: Extract text chapter-by-chapter and track chapter structure
-- TXT: Plain text with filename metadata
-
-Architecture:
-1. Each parser function (parse_pdf, parse_epub, parse_txt) reads a specific format
-2. Returns a list of ParsedDocument objects containing text and metadata
-3. The parse_document() function dispatches to the correct parser based on file extension
-4. All parsers handle errors gracefully and log warnings/errors
-
-Example usage:
-    docs = parse_document("book.pdf")  # Returns list[ParsedDocument]
-    for doc in docs:
-        print(doc.text)        # The extracted text
-        print(doc.metadata)    # Source file, page number, etc.
+Architecture, per-format process notes and error handling:
+docs/modules/ingestion/parsers.md
 """
 
 from __future__ import annotations
@@ -44,22 +30,9 @@ ParsedDocument = TextSegment
 def parse_pdf(file_path: Path | str) -> list[ParsedDocument]:
     """
     Parse a PDF file and extract text with page metadata.
-    
-    Process:
-    1. Opens the PDF file using pypdf
-    2. Iterates through each page
-    3. Extracts text from each page (skips empty pages)
-    4. Creates ParsedDocument for each page with metadata:
-       - Source file path
-       - Format ("pdf")
-       - Page number (1-indexed)
-       - Total pages
-       - Filename
-    
-    Error handling:
-    - If PDF is corrupted or unreadable, logs an error and returns empty list
-    - If a page fails to extract text, it's silently skipped
-    
+
+    Process and error handling: docs/modules/ingestion/parsers.md
+
     Args:
         file_path: Path to the PDF file
         
@@ -104,28 +77,10 @@ def parse_pdf(file_path: Path | str) -> list[ParsedDocument]:
 def parse_epub(file_path: Path | str) -> list[ParsedDocument]:
     """
     Parse an EPUB file and extract text with chapter metadata.
-    
-    Process:
-    1. Opens EPUB file using ebooklib
-    2. Iterates through all items (chapters/sections) in the book
-    3. Extracts text from HTML content
-    4. Removes HTML tags and cleans whitespace
-    5. Creates ParsedDocument for each chapter with metadata:
-       - Source file path
-       - Format ("epub")
-       - Chapter number
-       - Chapter title
-       - Filename
-    
-    Note: EPUB files store content as HTML, so we need to:
-    - Decode UTF-8 bytes to string
-    - Remove HTML tags to get plain text
-    - Clean up extra whitespace
-    
-    Error handling:
-    - Skips items that fail to parse (logs warning)
-    - Returns what could be parsed even if some items fail
-    
+
+    Process, the HTML-to-text notes and error handling:
+    docs/modules/ingestion/parsers.md
+
     Args:
         file_path: Path to the EPUB file
         
@@ -186,21 +141,10 @@ def parse_epub(file_path: Path | str) -> list[ParsedDocument]:
 def parse_txt(file_path: Path | str) -> list[ParsedDocument]:
     """
     Parse a plain text file.
-    
-    Process:
-    1. Opens text file with UTF-8 encoding
-    2. Reads entire content
-    3. Returns single ParsedDocument with filename metadata
-    
-    Note: Unlike PDF/EPUB which return multiple documents (one per page/chapter),
-    TXT files are returned as a single document. This is fine because the chunking
-    step (Phase 1b) will split it into smaller pieces.
-    
-    Error handling:
-    - Uses "ignore" error handling for encoding issues (skips bad characters)
-    - Skips empty files
-    - Returns empty list if file cannot be read
-    
+
+    Returns one document rather than many, unlike PDF and EPUB.
+    Process and error handling: docs/modules/ingestion/parsers.md
+
     Args:
         file_path: Path to the text file
         

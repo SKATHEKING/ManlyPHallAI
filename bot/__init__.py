@@ -1,13 +1,7 @@
 """
 Discord bot module for Manly P. Hall AI.
 
-Main exports:
-- bot: The Discord bot instance
-- main: Entry point function
-
-Usage:
-    from bot import main
-    main()
+Exports and usage: docs/modules/packages.md
 """
 
 from bot.discord_bot import bot, main

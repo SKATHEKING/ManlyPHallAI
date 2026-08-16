@@ -2,34 +2,7 @@
 Vector store management using Chroma.
 Handles vector insertion, retrieval, and persistence.
 
-This module provides a clean interface to Chroma:
-1. Initializes a persistent vector database on disk
-2. Stores embeddings + metadata together
-3. Enables semantic search over stored vectors
-4. Persists data between sessions
-
-Why Chroma?
-- Zero-setup: no separate database server needed
-- Stores vectors AND metadata together (unlike pure vector DBs)
-- Persistent storage (vectors survive program restarts)
-- Built-in similarity search (find similar vectors)
-- Easy to migrate later (Phase 2 can move to PostgreSQL)
-
-Configuration (from backend.config):
-- CHROMA_COLLECTION_NAME: "books" (collection to use)
-- CHROMA_PERSIST_DIR: "data/chroma_db/" (where vectors are stored)
-- EMBEDDING_DIMENSION: 384 (vector size)
-
-Data flow:
-1. Index phase creates Chroma store
-2. Adds chunks + embeddings + metadata
-3. Retrieval phase searches for similar chunks
-4. Generation phase uses retrieved chunks for grounded answers
-
-Example usage:
-    store = ChromaStore()
-    store.add_chunks([chunk1, chunk2, chunk3], embeddings)
-    similar = store.search("What is enlightenment?", k=5)
+Design notes, configuration and data flow: docs/modules/indexing/store.md
 """
 
 from __future__ import annotations
@@ -109,19 +82,9 @@ class ChromaStore:
     def add_chunks(self, chunks: Sequence[TextSegment], embeddings_matrix) -> int:
         """
         Add chunks and their embeddings to the store.
-        
-        Process:
-        1. Prepare chunk IDs (unique identifiers)
-        2. Extract text from chunks
-        3. Extract metadata from chunks
-        4. Add to Chroma collection
-        5. Persist to disk
-        
-        Chroma uses IDs to track vectors:
-        - IDs must be unique within collection
-        - Easier to update/delete specific chunks later
-        - We use filename + chunk index as ID
-        
+
+        Process and id scheme: docs/modules/indexing/store.md
+
         Args:
             chunks: List of Chunk objects (from ingestion phase)
             embeddings_matrix: numpy array of embeddings (shape: num_chunks x 384)
@@ -174,30 +137,17 @@ class ChromaStore:
     def search(self, query_embedding, k: int = 5) -> list[SearchHit]:
         """
         Search for similar chunks using vector similarity.
-        
-        Process:
-        1. Accept query embedding (vector representation of user question)
-        2. Use Chroma to find k nearest neighbors
-        3. Return chunks with similarity scores and metadata
-        
-        Why embeddings for search?
-        - Semantic: finds meaning, not just keyword matches
-        - Fast: vector similarity is fast compared to text matching
-        - Flexible: works across different phrasings of same concept
-        
+
+        Why embeddings, and how distance becomes a score:
+        docs/modules/indexing/store.md
+
         Args:
             query_embedding: Embedding vector of user question (shape: 384,)
             k: Number of results to return (default 5)
-            
+
         Returns:
             List of SearchHit, ordered most similar first, each carrying an id,
             the chunk text, its metadata and a similarity score in 0..1.
-
-            This used to return Chroma's raw response: a dict of parallel lists,
-            each nested one level deeper because Chroma can answer several queries
-            per call. Callers unpacked that themselves and converted the distance
-            into a similarity, which spread knowledge of Chroma's response format
-            and its distance metric into the retrieval layer. Both now stop here.
         """
         # Query the collection
         # query_embeddings is a list of embeddings (we send 1)

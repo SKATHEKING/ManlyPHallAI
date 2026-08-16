@@ -1,20 +1,10 @@
 """
 Discord bot for Manly P. Hall AI Bot.
 
-This module provides Discord slash commands for the RAG system (Phase 1e):
-- /ask: Answer questions using indexed books
-- /status: Check bot status and index statistics
-- /books: List indexed books
+Slash commands over the RAG system, using discord.py 2.0+.
 
-The bot uses discord.py 2.0+ with slash commands.
-
-Setup:
-1. Create a Discord application and get the token
-2. Set DISCORD_TOKEN environment variable
-3. Run: python -m bot.discord_bot
-
-Alternatively, run via script:
-    python scripts/run_discord_bot.py
+Command list, setup steps and how this relates to the HTTP API:
+docs/modules/bot/discord_bot.md
 """
 
 from __future__ import annotations

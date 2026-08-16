@@ -2,30 +2,9 @@
 Indexing module for embedding and storing vectors.
 Handles text embedding generation and vector persistence.
 
-This module orchestrates Phase 1c:
-1. Takes chunks from ingestion (Phase 1b)
-2. Generates embeddings using sentence-transformers
-3. Stores chunks + embeddings in Chroma vector DB
-
 Main entry point: index_chunks(chunks) -> ChromaStore
 
-The indexing pipeline is the bridge between ingestion and retrieval:
-- Input: chunks from ingest_document() (text + metadata)
-- Process: generate embeddings for each chunk
-- Output: searchable vector database for Phase 1d
-
-Example usage:
-    from backend.ingestion import ingest_document
-    from backend.indexing import index_chunks
-    
-    # Phase 1b: Ingest book
-    chunks = ingest_document("my_book.pdf")
-    
-    # Phase 1c: Index for retrieval
-    store = index_chunks(chunks)
-    
-    # Phase 1d: Search
-    results = store.search(query_embedding, k=5)
+Pipeline overview and examples: docs/modules/packages.md
 """
 
 from __future__ import annotations

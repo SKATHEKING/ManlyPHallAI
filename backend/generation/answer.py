@@ -2,29 +2,10 @@
 End-to-end answer generation pipeline.
 Retrieves passages and generates grounded answers with citations.
 
-This module orchestrates Phase 1d:
-1. Take user question
-2. Retrieve relevant chunks from indexed books
-3. Build context-aware prompt
-4. Call LLM to generate answer
-5. Format answer with citations
-
 Main function: answer_question(question, store) -> Answer
 
-The answer generation pipeline is the core of the RAG system:
-Input: User question
-Process: Retrieve context → Build prompt → Generate answer → Add citations
-Output: Answer with source citations
-
-Example usage:
-    from backend.generation.answer import answer_question
-    from backend.indexing import ChromaStore
-    
-    store = ChromaStore()
-    result = answer_question("What is enlightenment?", store)
-    
-    print(result["answer"])
-    print(result["citations"])  # Sources
+Pipeline stages, how confidence is derived, citation formatting and the
+error-handling caveat: docs/modules/generation/answer.md
 """
 
 from __future__ import annotations

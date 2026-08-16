@@ -1,34 +1,10 @@
 """
 LLM client for generating answers using Ollama.
 
-This module provides Phase 1d (generation step):
-1. Integrate with local Ollama LLM
-2. Send prompts with retrieved context
-3. Generate grounded answers citing sources
+Main class: OllamaLLM. Main function: generate_answer(prompt, chunks) -> str
 
-Main class: OllamaLLM (wrapper around Ollama)
-Main function: generate_answer(prompt, retrieved_chunks) -> str
-
-The LLM module is responsible for:
-- Connecting to Ollama service
-- Managing model loading/switching
-- Generating answers grounded in retrieved chunks
-- Handling streaming or batch responses
-
-Example usage:
-    from backend.generation.llm import OllamaLLM
-    
-    llm = OllamaLLM()
-    answer = llm.generate(prompt, temperature=0.3)
-    
-    # Or use the high-level function:
-    from backend.generation import generate_answer
-    answer = generate_answer(prompt, retrieved_chunks)
-
-Note: Requires Ollama service running locally:
-    - Download from ollama.ai
-    - Run: ollama pull llama2:7b (or other model)
-    - Ollama service runs on http://localhost:11434/
+Usage, sampling parameters and how to run Ollama locally:
+docs/modules/generation/llm.md
 """
 
 from __future__ import annotations

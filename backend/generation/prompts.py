@@ -2,27 +2,10 @@
 Prompt templates for grounded answer generation.
 Ensures LLM only uses provided passages as sources.
 
-This module contains templates for building prompts that:
-1. Provide retrieved context to the LLM
-2. Instruct LLM to answer based only on context
-3. Request citations to specific passages
-4. Prevent hallucination and false information
+Key function: build_rag_prompt(question, chunks) -> prompt string
 
-Key functions:
-- build_rag_prompt(question, chunks) -> prompt string
-- build_citation_request(chunks) -> formatted context string
-
-The prompt design is critical to RAG quality. Poor prompts lead to:
-- LLM ignoring provided context
-- Hallucinated information not in passages
-- No citations
-- Off-topic answers
-
-Good prompts:
-- Clearly state to use ONLY provided context
-- Format context clearly (separate passages)
-- Ask for explicit citations
-- Limit response length
+Why prompt design drives RAG quality, the assembled prompt's structure and the
+other builders: docs/modules/generation/prompts.md
 """
 
 from __future__ import annotations

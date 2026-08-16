@@ -2,26 +2,8 @@
 Embedding generation using sentence-transformers.
 Converts text chunks to dense vector representations.
 
-This module encapsulates all embedding generation logic:
-1. Loads the sentence-transformers model (configured in backend.config)
-2. Generates embeddings for individual texts or batches
-3. Returns numpy arrays compatible with Chroma vector database
-
-Why sentence-transformers?
-- Fast CPU inference (~50ms per query on modern hardware)
-- 384-dimensional output (efficient for storage)
-- Pre-trained on semantic similarity tasks
-- Works out-of-the-box without fine-tuning
-
-Configuration (from backend.config):
-- EMBEDDING_MODEL: "all-MiniLM-L6-v2" (22MB model)
-- EMBEDDING_DIMENSION: 384 (output vector size)
-- EMBEDDING_BATCH_SIZE: 32 (chunk size for batch processing)
-
-The embeddings are the foundation for semantic retrieval:
-- Similar text chunks have similar embeddings
-- Enables vector similarity search in Phase 1d
-- Allows us to find relevant passages for user questions
+Why sentence-transformers, the configuration and the model lifecycle:
+docs/modules/indexing/embedder.md
 """
 
 from __future__ import annotations

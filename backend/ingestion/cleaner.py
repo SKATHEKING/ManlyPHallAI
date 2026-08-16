@@ -2,24 +2,8 @@
 Text cleaning and normalization utilities.
 Prepares parsed text for chunking and embedding.
 
-This module is responsible for cleaning extracted text so it's suitable for:
-1. Semantic chunking (removes noise that would affect splitting)
-2. Embedding (removes control characters that could confuse the model)
-3. Display (removes extraneous whitespace and formatting artifacts)
-
-Handles:
-- Whitespace normalization (collapse multiple spaces/newlines/tabs)
-- Control character removal (invisible Unicode characters)
-- HTML/XML remnants (from EPUB parsing)
-- Encoding issues (bad Unicode)
-
-The clean_text() function applies all cleaning steps in sequence:
-  Input text → remove control chars → remove HTML → normalize whitespace → output
-
-Example usage:
-    raw_text = "Hello  \\n\\n  <b>world</b>  \\t  !"  # Messy text
-    clean = clean_text(raw_text)
-    # Result: "Hello\n\n world !"  (clean and ready for processing)
+What it handles, the cleaning pipeline and examples:
+docs/modules/ingestion/cleaner.md
 """
 
 from __future__ import annotations

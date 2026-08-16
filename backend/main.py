@@ -1,20 +1,8 @@
 """
 Main FastAPI support application for Manly P. Hall AI Bot.
 
-This is the HTTP API server for Phase 1e:
-- REST endpoints for Q&A, ingestion, status
-- Initialization of indexing and retrieval components
-- Error handling and logging
-
-The API can be accessed via HTTP or used as backend for Discord bot,
-web frontend, or other integrations.
-
-To run:
-    PYTHONPATH=. python -m uvicorn backend.main:app --reload
-
-Then visit:
-    http://localhost:8000/docs (interactive API documentation)
-    http://localhost:8000/redoc (ReDoc documentation)
+How to run it, what happens at startup and how errors are handled:
+docs/modules/main.md
 """
 
 import logging
