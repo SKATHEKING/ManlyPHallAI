@@ -17,6 +17,7 @@ changes is that a type checker now knows which keys exist.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import NamedTuple, TypedDict
 
 
@@ -105,4 +106,33 @@ class TextSegment(NamedTuple):
     metadata: ChunkMetadata
 
 
-__all__ = ["ChunkMetadata", "TextSegment"]
+@dataclass(frozen=True, slots=True)
+class SearchHit:
+    """
+    One result from the vector store, with the storage engine's details removed.
+
+    The store used to return Chroma's raw QueryResult -- a dict of parallel lists,
+    each wrapped in an outer list because Chroma supports batching several queries
+    at once. Retrieval unpacked that layout itself and converted Chroma's distance
+    into a similarity with `1 - distance`, which meant the retrieval layer had to
+    know both Chroma's response shape and its distance metric. Swapping in another
+    vector database would have broken it, despite the store class existing
+    precisely to prevent that.
+
+    A store now returns these instead, and does the conversion itself, because it
+    is the only layer that knows which metric it configured.
+
+    Attributes:
+        id: The store's identifier for this chunk
+        text: The chunk text
+        metadata: Provenance recorded at ingestion time
+        score: Similarity in the range 0..1, where higher is more similar
+    """
+
+    id: str
+    text: str
+    metadata: ChunkMetadata
+    score: float
+
+
+__all__ = ["ChunkMetadata", "TextSegment", "SearchHit"]

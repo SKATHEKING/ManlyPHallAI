@@ -101,56 +101,45 @@ def retrieve_chunks(
     query_embedding = embed_texts(query)[0]  # Returns 384-dim vector
     
     # Step 2: Search the vector store
-    # Chroma returns: ids, distances, metadatas, documents
-    # Distance is L2 (Euclidean), so lower = more similar
-    # We convert to similarity: 1 - distance (higher = more similar)
-    search_results = store.search(query_embedding, k=k)
-    
+    # The store returns SearchHit objects with a similarity already in 0..1;
+    # unpacking the engine's response layout and knowing its distance metric are
+    # its job, not ours.
+    hits = store.search(query_embedding, k=k)
+
     # Step 3: Process and filter results
     formatted_results = []
-    
-    if not search_results or not search_results.get("ids"):
+
+    if not hits:
         logger.info(f"No results found for query: {query}")
         return []
-    
-    # Results are organized by query (first dimension)
-    # Since we have one query, we get [results_for_query_0]
-    ids = search_results["ids"][0] if search_results["ids"] else []
-    distances = search_results["distances"][0] if search_results["distances"] else []
-    metadatas = search_results["metadatas"][0] if search_results["metadatas"] else []
-    documents = search_results["documents"][0] if search_results["documents"] else []
-    
-    for i, (chunk_id, distance, metadata, text) in enumerate(
-        zip(ids, distances, metadatas, documents)
-    ):
-        # Convert distance to similarity score (0-1)
-        # Cosine distance ranges from 0 to 2, so formula: (2 - distance) / 2
-        similarity = 1 - distance  # For normalized vectors
-        
+
+    for i, hit in enumerate(hits):
+        metadata = hit.metadata
+
         # Step 3: Apply threshold filter
-        if similarity < threshold:
-            logger.debug(f"Skipping chunk {chunk_id}: score {similarity:.2%} < threshold {threshold:.2%}")
+        if hit.score < threshold:
+            logger.debug(f"Skipping chunk {hit.id}: score {hit.score:.2%} < threshold {threshold:.2%}")
             continue
-        
+
         # Step 4: Format result for generation phase
         result = {
-            "text": text,
+            "text": hit.text,
             "source": metadata.get("source", "unknown"),
             "filename": metadata.get("filename", "unknown"),
             "page": metadata.get("page", None),
             "chapter": metadata.get("chapter", None),
             "chunk_index": metadata.get("chunk_index", i),
-            "score": similarity,
+            "score": hit.score,
             "metadata": metadata,
             "rank": len(formatted_results) + 1,  # 1-indexed rank
         }
-        
+
         formatted_results.append(result)
-        
-        logger.debug(f"Retrieved: {metadata.get('filename')} (score: {similarity:.2%})")
-    
+
+        logger.debug(f"Retrieved: {metadata.get('filename')} (score: {hit.score:.2%})")
+
     logger.info(f"Retrieved {len(formatted_results)} chunks for query: '{query}'")
-    
+
     return formatted_results
 
 

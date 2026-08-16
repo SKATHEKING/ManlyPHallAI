@@ -39,11 +39,10 @@ from pathlib import Path
 
 import chromadb
 
-from backend.config import (
-    CHROMA_COLLECTION_NAME,
-    CHROMA_PERSIST_DIR,
-    EMBEDDING_DIMENSION,
-)
+from typing import Any, Sequence, cast
+
+from backend.config import get_settings
+from backend.core.types import ChunkMetadata, SearchHit, TextSegment
 
 
 logger = logging.getLogger(__name__)
@@ -62,35 +61,52 @@ class ChromaStore:
         collection: Active collection for book vectors
     """
     
-    def __init__(self):
+    def __init__(
+        self,
+        persist_dir: Path | str | None = None,
+        collection_name: str | None = None,
+    ):
         """
         Initialize Chroma store with persistent storage.
-        
+
         Creates:
         - Persistent Chroma client (stores vectors to disk)
         - Collection named after CHROMA_COLLECTION_NAME
         - Metadata indexing for fast filtering
+
+        Args:
+            persist_dir: Where to keep the index. Defaults to the configured
+                         location. Taking it as an argument is what allows a test
+                         to point at a temporary directory instead of the real
+                         index, which previously was impossible.
+            collection_name: Collection to open. Defaults to the configured name.
         """
+        settings = get_settings()
+
         # Ensure data directory exists
-        persist_dir = Path(CHROMA_PERSIST_DIR)
+        persist_dir = Path(settings.chroma_dir if persist_dir is None else persist_dir)
         persist_dir.mkdir(parents=True, exist_ok=True)
-        
+
+        self.collection_name = (
+            settings.chroma_collection_name if collection_name is None else collection_name
+        )
+
         # Initialize Chroma client with persistent storage
         # Uses new Chroma API (v0.4+) with PersistentClient
         # Automatically manages database and vector storage
         self.client = chromadb.PersistentClient(path=str(persist_dir))
-        
+
         # Get or create the collection for storing book chunks
         # If collection exists, get it; if not, create it
         # Metadata field is for filtering (e.g., by source file)
         self.collection = self.client.get_or_create_collection(
-            name=CHROMA_COLLECTION_NAME,
+            name=self.collection_name,
             metadata={"hnsw:space": "cosine"},  # Use cosine similarity for search
         )
-        
-        logger.info(f"✓ Chroma store initialized: {CHROMA_COLLECTION_NAME}")
+
+        logger.info(f"✓ Chroma store initialized: {self.collection_name}")
     
-    def add_chunks(self, chunks: list, embeddings_matrix) -> int:
+    def add_chunks(self, chunks: Sequence[TextSegment], embeddings_matrix) -> int:
         """
         Add chunks and their embeddings to the store.
         
@@ -144,7 +160,9 @@ class ChromaStore:
         self.collection.add(
             ids=ids,
             embeddings=embeddings_matrix.tolist(),  # Convert numpy array to list
-            metadatas=metadatas,
+            # cast only to satisfy Chroma's very broad metadata stub; a TypedDict
+            # is an ordinary dict at runtime, so nothing is converted here.
+            metadatas=cast(Any, metadatas),
             documents=texts,
         )
         
@@ -153,7 +171,7 @@ class ChromaStore:
         logger.info(f"✓ Added {len(chunks)} chunks to store")
         return len(chunks)
     
-    def search(self, query_embedding, k: int = 5) -> dict:
+    def search(self, query_embedding, k: int = 5) -> list[SearchHit]:
         """
         Search for similar chunks using vector similarity.
         
@@ -172,11 +190,14 @@ class ChromaStore:
             k: Number of results to return (default 5)
             
         Returns:
-            Dictionary with:
-            - ids: chunk identifiers
-            - distances: similarity scores (0 = identical, 1 = very different)
-            - metadatas: metadata for each result
-            - documents: the actual text chunks
+            List of SearchHit, ordered most similar first, each carrying an id,
+            the chunk text, its metadata and a similarity score in 0..1.
+
+            This used to return Chroma's raw response: a dict of parallel lists,
+            each nested one level deeper because Chroma can answer several queries
+            per call. Callers unpacked that themselves and converted the distance
+            into a similarity, which spread knowledge of Chroma's response format
+            and its distance metric into the retrieval layer. Both now stop here.
         """
         # Query the collection
         # query_embeddings is a list of embeddings (we send 1)
@@ -189,10 +210,34 @@ class ChromaStore:
             # pulling every 384-float vector back for each query is pure overhead.
             include=["metadatas", "documents", "distances"],
         )
-        
-        logger.debug(f"Found {len(results['ids'][0])} similar chunks")
-        
-        return results
+
+        # Chroma answers per query, so every field is a list-of-lists and we want
+        # index 0. Missing keys yield empty lists rather than raising.
+        ids = (results.get("ids") or [[]])[0]
+        distances = (results.get("distances") or [[]])[0]
+        metadatas = (results.get("metadatas") or [[]])[0]
+        documents = (results.get("documents") or [[]])[0]
+
+        hits = [
+            SearchHit(
+                id=chunk_id,
+                text=text,
+                # Chroma types its metadata as a broad Mapping of primitives; this
+                # is the same dict we wrote at ingestion time.
+                metadata=cast(ChunkMetadata, metadata or {}),
+                # The collection is configured for cosine distance above, where 0
+                # means identical, so similarity is its complement. This belongs
+                # here because this class chose the metric.
+                score=1 - distance,
+            )
+            for chunk_id, distance, metadata, text in zip(
+                ids, distances, metadatas, documents
+            )
+        ]
+
+        logger.debug(f"Found {len(hits)} similar chunks")
+
+        return hits
     
     def get_collection_size(self) -> int:
         """
@@ -229,9 +274,9 @@ class ChromaStore:
         Returns:
             Number of chunks deleted
         """
-        # Get all chunks from this source
+        # Get all chunks from this source, using Chroma's metadata filter DSL
         all_data = self.collection.get(
-            where={"filename": {"$eq": source_filename}}
+            where=cast(Any, {"filename": {"$eq": source_filename}})
         )
         
         if all_data["ids"]:

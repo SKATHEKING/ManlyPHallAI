@@ -88,7 +88,7 @@ class Settings(BaseSettings):
     ollama_model: str = "llama2:7b"  # Model to use for generation
     # OLLAMA_URL is accepted too, because docker-compose.yml sets that name.
     ollama_base_url: str = Field(
-        "http://localhost:11434",  # Ollama API URL
+        default="http://localhost:11434",  # Ollama API URL
         validation_alias=AliasChoices("OLLAMA_BASE_URL", "OLLAMA_URL"),
     )
     max_context_length: int = 2048  # Max tokens in prompt to LLM

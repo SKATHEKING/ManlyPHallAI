@@ -16,18 +16,16 @@ from typing import Iterator, Sequence
 
 import numpy as np
 
+from backend.core.types import SearchHit
+
 
 class FakeStore:
     """
     In-memory stand-in for ChromaStore.
 
-    `search` returns Chroma's native result envelope: every field is a list with
-    one entry per query, and we only ever issue one query, hence the [[...]]
-    nesting. Retrieval unpacks that shape directly, so the fake has to reproduce
-    it faithfully or the test proves nothing.
-
-    Distances follow Chroma's cosine convention, where 0 means identical. The
-    retriever converts them with `1 - distance`, so a distance of 0.1 becomes a
+    `search` returns SearchHit objects, matching the Searchable protocol. Hits are
+    declared with Chroma's distance convention, where 0 means identical, and the
+    fake converts them the same way a real store does: a distance of 0.1 becomes a
     similarity of 0.9.
     """
 
@@ -42,15 +40,17 @@ class FakeStore:
         self.added: list[tuple] = []
         self.deleted: list[str] = []
 
-    def search(self, query_embedding, k: int = 5) -> dict:
+    def search(self, query_embedding, k: int = 5) -> list[SearchHit]:
         self.searches.append((query_embedding, k))
-        window = self.hits[:k]
-        return {
-            "ids": [[h["id"] for h in window]],
-            "documents": [[h["document"] for h in window]],
-            "metadatas": [[h["metadata"] for h in window]],
-            "distances": [[h["distance"] for h in window]],
-        }
+        return [
+            SearchHit(
+                id=h["id"],
+                text=h["document"],
+                metadata=h["metadata"],
+                score=1 - h["distance"],
+            )
+            for h in self.hits[:k]
+        ]
 
     def get_collection_size(self) -> int:
         return len(self.hits)
