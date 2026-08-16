@@ -300,16 +300,27 @@ async def delete_book(filename: str) -> DeleteResponse:
     """
     if _store is None:
         raise HTTPException(status_code=500, detail="Store not initialized")
-    
+
+    # filename is joined onto BOOKS_DIR and passed to unlink() below. Resolve the
+    # join and require the result to sit directly inside BOOKS_DIR: that rejects
+    # "..", ".", embedded separators, and symlinks pointing out of the directory.
+    books_dir = BOOKS_DIR.resolve()
+    file_path = (books_dir / filename).resolve()
+    if file_path.parent != books_dir:
+        raise HTTPException(status_code=400, detail=f"Invalid filename: {filename}")
+
     try:
         # Delete all chunks with this source
         chunks_deleted = _store.delete_by_source(filename)
 
-        # Delete file if it exists
-        file_path = BOOKS_DIR / filename
-        file_existed = file_path.exists()
-        if file_existed:
+        # Attempt the unlink rather than checking first. exists() + unlink() is
+        # a check-then-act race: if the file goes away in between, unlink raises
+        # FileNotFoundError and a successful delete is reported as a 500.
+        try:
             file_path.unlink()
+            file_existed = True
+        except FileNotFoundError:
+            file_existed = False
 
         # Nothing indexed and no file on disk: the book was never here
         if not chunks_deleted and not file_existed:
