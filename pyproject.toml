@@ -1,0 +1,6 @@
+[tool.pytest.ini_options]
+# Restrict collection to tests/. Without this, a bare `pytest` from the repo root
+# also collects the five test_*-named functions in scripts/ (test_indexing.py and
+# test_retrieval_generation.py), which are demo scripts, not tests: they contain no
+# assertions, write sample books into data/books/, embed them, and call Ollama.
+testpaths = ["tests"]

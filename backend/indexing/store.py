@@ -185,7 +185,9 @@ class ChromaStore:
         results = self.collection.query(
             query_embeddings=[query_embedding.tolist()],  # Convert numpy to list
             n_results=k,
-            include=["embeddings", "metadatas", "documents", "distances"],
+            # Embeddings are deliberately not requested: no caller reads them, and
+            # pulling every 384-float vector back for each query is pure overhead.
+            include=["metadatas", "documents", "distances"],
         )
         
         logger.debug(f"Found {len(results['ids'][0])} similar chunks")
