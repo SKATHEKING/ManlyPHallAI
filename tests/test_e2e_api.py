@@ -155,8 +155,9 @@ class TestAPIAskWorkflow:
             json={"question": long_question},
         )
 
-        # Should handle gracefully (may accept or reject)
-        assert response.status_code in [200, 400, 413]
+        # Should handle gracefully (may accept or reject). 422 is the rejection:
+        # AskRequest caps question at max_length=1000, so pydantic rejects ~5000 chars.
+        assert response.status_code in [200, 400, 413, 422]
 
 
 class TestAPIStatusEndpoint:
