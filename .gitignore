@@ -29,6 +29,14 @@ ENV/
 env/
 .venv
 
+# Tool caches
+# Both tools also drop a self-ignoring .gitignore inside these directories, so
+# git already skips them. Listing them here too means editors and other tools
+# that only read the root .gitignore do not report thousands of phantom files.
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
 # IDE
 .vscode/
 .idea/
