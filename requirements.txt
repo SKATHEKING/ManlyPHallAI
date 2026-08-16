@@ -9,6 +9,10 @@
 fastapi>=0.115.0
 uvicorn[standard]>=0.30.0
 pydantic>=2.8.0
+# Required by the UploadFile parameter on POST /ingest. FastAPI raises at
+# route-definition time without it, so importing backend.main fails outright.
+# Not imported by our code directly, which is why it is easy to miss.
+python-multipart>=0.0.9
 
 # Document Parsing
 pypdf>=4.3.0
@@ -16,7 +20,10 @@ ebooklib==0.18.0
 python-docx>=1.1.2
 
 # Text Processing
-langchain>=0.2.0
+# chunker.py imports langchain_text_splitters directly. Current langchain
+# releases no longer pull that in transitively, so declare it explicitly.
+# The langchain metapackage itself is not imported anywhere in this repo.
+langchain-text-splitters>=0.2.0
 sentence-transformers>=3.0.0
 tokenizers>=0.19.0
 

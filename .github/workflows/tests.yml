@@ -35,14 +35,15 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
 
-    - name: Run unit tests
+    # Runs every test class that does not need a live Ollama instance.
+    # Excluded: TestAPIAskWorkflow and TestAPIConcurrency (both call /ask, which
+    # requires the LLM) and tests/test_performance.py (needs Ollama and is slow).
+    # tests/test_ingestion.py is still an empty Phase 2 placeholder, so pointing
+    # this step at it made pytest exit 5 ("no tests collected") and fail the job.
+    - name: Run API tests (without Ollama)
       run: |
-        pytest tests/test_ingestion.py -v --tb=short
-
-    - name: Run E2E API tests (without Ollama)
-      run: |
-        pytest tests/test_e2e_api.py::TestAPIStatusEndpoint -v --tb=short
-        pytest tests/test_e2e_api.py::TestAPIErrorHandling -v --tb=short
+        pytest tests/test_e2e_api.py -v --tb=short \
+          -k "TestAPIIngestWorkflow or TestAPIStatusEndpoint or TestAPIBooksEndpoint or TestAPIErrorHandling or TestAPIHealth"
 
     - name: Lint with pylint
       run: |
@@ -66,7 +67,8 @@ jobs:
 
     - name: Test coverage
       run: |
-        pytest tests/test_ingestion.py --cov=backend --cov-report=term-missing
+        pytest tests/test_e2e_api.py --cov=backend --cov-report=term-missing \
+          -k "TestAPIIngestWorkflow or TestAPIStatusEndpoint or TestAPIBooksEndpoint or TestAPIErrorHandling or TestAPIHealth"
       continue-on-error: true
 
   security:

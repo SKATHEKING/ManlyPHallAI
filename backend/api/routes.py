@@ -303,21 +303,28 @@ async def delete_book(filename: str) -> DeleteResponse:
     
     try:
         # Delete all chunks with this source
-        _store.delete_by_source(filename)
-        
+        chunks_deleted = _store.delete_by_source(filename)
+
         # Delete file if it exists
         file_path = BOOKS_DIR / filename
-        if file_path.exists():
+        file_existed = file_path.exists()
+        if file_existed:
             file_path.unlink()
-        
-        logger.info(f"Deleted book: {filename}")
-        
+
+        # Nothing indexed and no file on disk: the book was never here
+        if not chunks_deleted and not file_existed:
+            raise HTTPException(status_code=404, detail=f"Book not found: {filename}")
+
+        logger.info(f"Deleted book: {filename} ({chunks_deleted} chunks)")
+
         return DeleteResponse(
             success=True,
             filename=filename,
             message=f"Successfully deleted {filename}",
         )
-        
+
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to delete book: {e}")
         raise HTTPException(status_code=500, detail=f"Deletion failed: {str(e)}")
