@@ -28,7 +28,7 @@ import logging
 from pathlib import Path
 from typing import NamedTuple
 
-import PyPDF2
+import pypdf
 import ebooklib
 from ebooklib import epub
 
@@ -55,7 +55,7 @@ def parse_pdf(file_path: Path | str) -> list[ParsedDocument]:
     Parse a PDF file and extract text with page metadata.
     
     Process:
-    1. Opens the PDF file using PyPDF2
+    1. Opens the PDF file using pypdf
     2. Iterates through each page
     3. Extracts text from each page (skips empty pages)
     4. Creates ParsedDocument for each page with metadata:
@@ -83,7 +83,7 @@ def parse_pdf(file_path: Path | str) -> list[ParsedDocument]:
         # Open PDF file in binary mode (required for PDF reading)
         with open(file_path, "rb") as f:
             # Create a PDF reader object
-            pdf_reader = PyPDF2.PdfReader(f)
+            pdf_reader = pypdf.PdfReader(f)
             # Iterate through each page in the PDF
             for page_num, page in enumerate(pdf_reader.pages):
                 # Extract text from the page

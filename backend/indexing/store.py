@@ -212,7 +212,7 @@ class ChromaStore:
         all_data = self.collection.get()
         if all_data["ids"]:
             self.collection.delete(ids=all_data["ids"])
-            self.client.persist()
+            # Note: Chroma v0.4+ persists automatically, no explicit persist() call needed
             logger.warning(f"✗ Cleared collection: {len(all_data['ids'])} chunks deleted")
     
     def delete_by_source(self, source_filename: str) -> int:
@@ -234,7 +234,7 @@ class ChromaStore:
         
         if all_data["ids"]:
             self.collection.delete(ids=all_data["ids"])
-            self.client.persist()
+            # Note: Chroma v0.4+ persists automatically, no explicit persist() call needed
             count = len(all_data["ids"])
             logger.info(f"Deleted {count} chunks from {source_filename}")
             return count
