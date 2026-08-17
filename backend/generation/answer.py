@@ -2,29 +2,10 @@
 End-to-end answer generation pipeline.
 Retrieves passages and generates grounded answers with citations.
 
-This module orchestrates Phase 1d:
-1. Take user question
-2. Retrieve relevant chunks from indexed books
-3. Build context-aware prompt
-4. Call LLM to generate answer
-5. Format answer with citations
-
 Main function: answer_question(question, store) -> Answer
 
-The answer generation pipeline is the core of the RAG system:
-Input: User question
-Process: Retrieve context → Build prompt → Generate answer → Add citations
-Output: Answer with source citations
-
-Example usage:
-    from backend.generation.answer import answer_question
-    from backend.indexing import ChromaStore
-    
-    store = ChromaStore()
-    result = answer_question("What is enlightenment?", store)
-    
-    print(result["answer"])
-    print(result["citations"])  # Sources
+Pipeline stages, how confidence is derived, citation formatting and the
+error-handling caveat: docs/modules/generation/answer.md
 """
 
 from __future__ import annotations
@@ -35,7 +16,7 @@ from typing import Any
 from backend.retrieval.retriever import retrieve_chunks
 from backend.generation.llm import OllamaLLM
 from backend.generation.prompts import build_rag_prompt
-from backend.config import RETRIEVAL_K, RELEVANCE_THRESHOLD, OLLAMA_MODEL
+from backend.config import get_settings
 
 
 logger = logging.getLogger(__name__)
@@ -123,9 +104,9 @@ class Answer:
 def answer_question(
     question: str,
     store: Any,
-    k: int = RETRIEVAL_K,
-    threshold: float = RELEVANCE_THRESHOLD,
-    model: str = OLLAMA_MODEL,
+    k: int | None = None,
+    threshold: float | None = None,
+    model: str | None = None,
     use_streaming: bool = False,
 ) -> Answer:
     """
@@ -275,7 +256,7 @@ def answer_question_with_source_filter(
     question: str,
     store: Any,
     source_file: str,
-    k: int = RETRIEVAL_K,
+    k: int | None = None,
 ) -> Answer:
     """
     Answer question restricted to a specific source file.
@@ -294,6 +275,7 @@ def answer_question_with_source_filter(
     logger.info(f"Answering from {source_file}: {question[:100]}...")
     
     # Retrieve and filter by source
+    k = get_settings().retrieval_k if k is None else k
     retrieved = retrieve_chunks(question, store, k=k*2)  # Get more to filter
     filtered = [r for r in retrieved if r["filename"] == source_file][:k]
     

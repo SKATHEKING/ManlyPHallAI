@@ -9,6 +9,8 @@
 fastapi>=0.115.0
 uvicorn[standard]>=0.30.0
 pydantic>=2.8.0
+# backend/config.py reads settings from the environment and .env through this.
+pydantic-settings>=2.4.0
 # Required by the UploadFile parameter on POST /ingest. FastAPI raises at
 # route-definition time without it, so importing backend.main fails outright.
 # Not imported by our code directly, which is why it is easy to miss.

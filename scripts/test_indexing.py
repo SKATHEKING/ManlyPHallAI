@@ -1,45 +1,7 @@
 """
-Test the indexing pipeline (Phase 1c).
+Demo script: exercise the Phase 1c indexing pipeline end to end.
 
-This test validates the complete indexing workflow:
-1. Ingest a sample book (Phase 1b)
-2. Generate embeddings for all chunks (Phase 1c)
-3. Store in Chroma vector database (Phase 1c)
-4. Verify retrieval capability (Phase 1d preview)
-
-This is the first end-to-end test combining Phase 1b + 1c:
-- Input: Book file
-- Process: Ingest → Chunk → Embed → Index
-- Output: Searchable vector database
-
-Usage:
-    PYTHONPATH=. python scripts/test_indexing.py
-
-Expected output:
-    🚀 Testing Indexing Pipeline (Phase 1c)
-    
-    [Phase 1b: Ingestion]
-    ✓ Created sample book
-    ✓ Ingested and chunked
-    
-    [Phase 1c: Indexing]
-    📝 Generating embeddings
-    ✓ Indexed N chunks
-    
-    [Verification: Retrieval]
-    🔍 Testing similarity search
-    ✓ Retrieved K similar chunks
-    
-    📊 Results:
-    • Store size: N chunks
-    • Sample query: "enlightenment"
-    • Top 3 results with scores...
-
-This demonstrates the core RAG pipeline:
-1. Ingest (parse + chunk) ✓
-2. Index (embed + store) ✓ THIS TEST
-3. Retrieve (vector search) ✓ THIS TEST
-4. Generate (LLM answers) - Phase 1d
+Not a test -- it asserts nothing. See docs/modules/scripts.md
 """
 
 from __future__ import annotations

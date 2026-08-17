@@ -1,37 +1,7 @@
 """
-Test the retrieval and generation pipeline (Phase 1d).
+Demo script: exercise the full RAG loop. Requires a running Ollama.
 
-This test validates the complete RAG workflow:
-1. Index a sample book (Phase 1b + 1c)
-2. Test retrieval: query → search → get relevant chunks
-3. Test prompt building
-4. Test answer generation (requires Ollama running)
-
-Complete pipeline: Question → Embedding → Search → Retrieve → Prompt → LLM → Answer
-
-Usage:
-    PYTHONPATH=. python scripts/test_retrieval_generation.py
-
-Note: This test requires Ollama to be running:
-    ollama serve  # In another terminal
-    ollama pull llama2:7b  # Or your preferred model
-
-Expected output:
-    🚀 Testing Retrieval & Generation Pipeline (Phase 1d)
-    
-    [Phase 1b+1c: Index] ✓
-    [Phase 1d: Retrieval] ✓ Retrieved N chunks for query
-    [Phase 1d: Prompt Building] ✓ Formatted prompt
-    [Phase 1d: Generation] ✓ Generated answer (or skip if Ollama not running)
-    
-    📊 Results:
-    Question: ...
-    Retrieved chunks: N
-    Answer: ...
-    Citations: ...
-
-If Ollama is not running, the test will skip the generation step but still
-validate retrieval and prompt building.
+Not a test -- it asserts nothing. See docs/modules/scripts.md
 """
 
 from __future__ import annotations

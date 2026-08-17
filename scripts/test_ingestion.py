@@ -1,39 +1,7 @@
 """
-Test the ingestion pipeline with a sample text file.
+Demo script: exercise the Phase 1b ingestion pipeline and print statistics.
 
-This test script validates the entire Phase 1b ingestion pipeline:
-- Parsing (extract text from documents)
-- Cleaning (normalize and format text)
-- Chunking (split into semantic pieces with overlap)
-
-The test creates a sample book, ingests it, and prints:
-1. Ingestion statistics (chunk count, sizes, metadata)
-2. Sample chunks for quality inspection
-
-Usage:
-    PYTHONPATH=. python scripts/test_ingestion.py
-
-Expected output:
-    ✓ Created sample book: data/books/sample_book.txt
-    📖 Ingesting document...
-    ✓ Ingestion took 0.XX seconds
-    
-    📊 Ingestion Statistics:
-      • Total chunks: N
-      • Total text length: X,XXX characters
-      • Average chunk length: XXX characters
-      • Min/Max chunk lengths
-    
-    🏷️  Metadata (from first chunk):
-      • source, format, filename, chunk_index, etc.
-    
-    📑 Sample Chunks (first 3):
-      --- Chunk 1 ---
-      Metadata: {...}
-      Text (XXX chars):
-      [First 300 characters of chunk]...
-
-This serves as both a validation tool and a demonstration of the pipeline.
+Not a test -- it asserts nothing. See docs/modules/scripts.md
 """
 
 from __future__ import annotations
